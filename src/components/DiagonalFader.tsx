@@ -11,21 +11,33 @@ export function DiagonalFader({ ring, value, dispatch }: DiagonalFaderProps) {
   const color = RING_COLORS[ring];
   const thumbX = 10 + value * 100;
 
+  function getSvgX(e: React.PointerEvent<SVGSVGElement>): number {
+    const svg = e.currentTarget;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return thumbX;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    return pt.matrixTransform(ctm.inverse()).x;
+  }
+
   function handlePointerDown(e: React.PointerEvent<SVGSVGElement>) {
+    e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
+    const x = getSvgX(e);
+    const clamped = Math.max(10, Math.min(110, x));
+    dispatch({ type: 'SET_FADER', ring, value: (clamped - 10) / 100 });
   }
 
   function handlePointerMove(e: React.PointerEvent<SVGSVGElement>) {
-    if (e.buttons === 0) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
+    if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
+    const x = getSvgX(e);
     const clamped = Math.max(10, Math.min(110, x));
-    const newValue = (clamped - 10) / 100;
-    dispatch({ type: 'SET_FADER', ring, value: newValue });
+    dispatch({ type: 'SET_FADER', ring, value: (clamped - 10) / 100 });
   }
 
   return (
-    <div style={{ transform: 'rotate(-45deg)', margin: '4px 0' }}>
+    <div style={{ transform: 'rotate(-45deg)', margin: '4px 0', touchAction: 'none' }}>
       <svg
         data-testid={`fader-${ring}`}
         width="120"
