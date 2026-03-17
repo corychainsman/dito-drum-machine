@@ -6,14 +6,17 @@ import { StopIcon } from './icons/StopIcon';
 interface CenterControlProps {
   transport: Transport;
   dispatch: React.Dispatch<Action>;
+  onFirstInteraction?: () => void;
 }
 
-export function CenterControl({ transport, dispatch }: CenterControlProps) {
+export function CenterControl({ transport, dispatch, onFirstInteraction }: CenterControlProps) {
   const isPlaying = transport === 'playing';
 
   function handlePointerDown(e: React.PointerEvent<SVGGElement>) {
     // Stop propagation so the parent SVG pointer handler doesn't interfere
     e.stopPropagation();
+    // Must call init here (synchronously in gesture) for iOS AudioContext
+    onFirstInteraction?.();
     if (isPlaying) {
       dispatch({ type: 'STOP' });
     } else {
