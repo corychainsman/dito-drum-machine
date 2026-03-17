@@ -15,10 +15,11 @@ export function DiagonalFader({ ring, value, dispatch }: DiagonalFaderProps) {
     const svg = e.currentTarget;
     const ctm = svg.getScreenCTM();
     if (!ctm) return thumbX;
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    return pt.matrixTransform(ctm.inverse()).x;
+    // DOMMatrix.inverse() is safe (returns NaN values on singular matrix);
+    // SVGMatrix.inverse() throws DOMException which would crash the React tree.
+    const m = new DOMMatrix([ctm.a, ctm.b, ctm.c, ctm.d, ctm.e, ctm.f]);
+    const pt = m.inverse().transformPoint(new DOMPoint(e.clientX, e.clientY));
+    return isNaN(pt.x) ? thumbX : pt.x;
   }
 
   function handlePointerDown(e: React.PointerEvent<SVGSVGElement>) {
