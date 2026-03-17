@@ -49,13 +49,7 @@ html, body, #root {
 
 .fader-overlay {
   position: absolute;
-  left: 50%;
-  top: 50%;
   transform-origin: center;
-  transform:
-    translate(-50%, -50%)
-    rotate(var(--fader-angle))
-    translateX(var(--fader-radius));
 }
 
 button {
