@@ -86,6 +86,28 @@ export const DEFAULT_PATTERN_HEX = '5544FF0000';
 export const DEFAULT_FADERS_HEX = '88888';
 export const DEFAULT_BPM_VALUE = 100;
 
+// ─── Layout defaults ──────────────────────────────────────────────
+// Each param encoded as 2 hex digits in this order:
+//   stepsStart, stepsGap, stepsRadius,
+//   slidersStart, slidersGap, slidersRadius,
+//   buttonsStart, buttonsGap, buttonsRadius
+// Angles (0-360°) → 0x00-0xFF; Radius (0-100%) → 0x00-0xFF
+export const DEFAULT_LAYOUT: import('./types').LayoutParams = {
+  stepsStart: 270,   // 12 o'clock
+  stepsGap: 45,      // 360° / 8 steps
+  stepsRadius: 76,   // outer ring at 152 SVG units (76% of 200)
+
+  slidersStart: 202, // approx -158°, matches legacy FADER_ANGLES[0]
+  slidersGap: 72,    // 360° / 5 sliders
+  slidersRadius: 37, // 74 SVG units (37% of 200)
+
+  buttonsStart: 135, // bottom-left area
+  buttonsGap: 90,    // 3 buttons at 135°, 225°, 315°
+  buttonsRadius: 76, // same distance as outer ring
+};
+// Pre-encoded: BF20C28F335E6040C2
+export const DEFAULT_LAYOUT_HEX = 'BF20C28F335E6040C2';
+
 // ─── Animation ────────────────────────────────────────────────────
 export const PAD_TOGGLE_MS = 120;
 export const PAD_TRIGGER_ATTACK_MS = 80;
