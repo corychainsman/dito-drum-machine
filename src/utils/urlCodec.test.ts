@@ -41,6 +41,10 @@ describe('URL Codec round-trip', () => {
     expect(urlToState('?garbage=true')).toBeNull(); // wrong params
   });
 
+  it('rejects tempo values containing non-digit suffixes', () => {
+    expect(urlToState('?p=0000000000&f=00000&t=100abc')).toBeNull();
+  });
+
   it('encodes default pattern to expected hex', () => {
     // kick: 0,2,4,6 = bits 0,2,4,6 = 0b01010101 = 0x55
     // snare: 2,6 = bits 2,6 = 0b01000100 = 0x44
