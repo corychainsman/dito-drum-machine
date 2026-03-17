@@ -11,6 +11,7 @@ import { generateSamples } from './sampleGeneration';
 
 export class AudioEngine {
   private ctx: AudioContext | null = null;
+  private initPromise: Promise<void> | null = null;
   private schedulerTimer: number | null = null;
   private nextStepTime: number = 0;
   private currentStep: number = 0;
@@ -24,9 +25,16 @@ export class AudioEngine {
   /**
    * Called on first user interaction. MUST be called inside a
    * pointerdown/click handler for iOS compatibility.
+   * Returns the same in-flight promise if called while init is running,
+   * preventing the race where start() fires before ctx.resume() resolves.
    */
-  async init(): Promise<void> {
-    if (this.ctx) return; // Already initialized
+  init(): Promise<void> {
+    if (this.initPromise) return this.initPromise;
+    this.initPromise = this._doInit();
+    return this.initPromise;
+  }
+
+  private async _doInit(): Promise<void> {
     this.ctx = new AudioContext({ latencyHint: 'interactive' });
     if (this.ctx.state === 'suspended') {
       await this.ctx.resume();
