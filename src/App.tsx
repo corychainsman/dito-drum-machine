@@ -6,22 +6,23 @@ import { RandomButton } from './components/RandomButton';
 import { RepeatButton } from './components/RepeatButton';
 import { TempoControl } from './components/TempoControl';
 import { FaderTray } from './components/FaderTray';
+import { useAudioEngine } from './hooks/useAudioEngine';
 import './styles/global.css';
 
 export function App() {
   const [state, dispatch] = useReducer(reducer, undefined, getInitialState);
 
   // URL sync effect — only for serialized fields (pattern, faders, bpm)
-  // We always write the URL so toggling pads immediately updates it
   useEffect(() => {
     const url = stateToURL(state);
     window.history.replaceState(null, '', url);
   }, [state.pattern, state.faders, state.bpm]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // First interaction callback — no-op since URL sync is always active
-  const handleFirstInteraction = useCallback(() => {
-    // Audio context init handled in Phase 3
-  }, []);
+  const { init } = useAudioEngine(state, dispatch);
+
+  const handleFirstInteraction = useCallback(async () => {
+    await init();
+  }, [init]);
 
   return (
     <div className="app-container">
