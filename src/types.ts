@@ -28,6 +28,23 @@ export type Action =
   | { type: 'ADVANCE_STEP' }
   | { type: 'HYDRATE'; state: Partial<AppState> };
 
+export interface LayoutParams {
+  // Sequencer step circles
+  stepsStart: number;   // degrees 0-360, where first step is placed
+  stepsGap: number;     // degrees 0-360, angular spacing between steps
+  stepsRadius: number;  // 0-100, percent of SVG half-size (200px) for outer ring
+
+  // Fader sliders
+  slidersStart: number;  // degrees 0-360
+  slidersGap: number;    // degrees 0-360
+  slidersRadius: number; // 0-100, percent of SVG half-size
+
+  // Action buttons (random, repeat, tempo)
+  buttonsStart: number;  // degrees 0-360
+  buttonsGap: number;    // degrees 0-360
+  buttonsRadius: number; // 0-100, percent of SVG half-size
+}
+
 // Geometry helper types
 export interface ArcDescriptor {
   ring: number;
