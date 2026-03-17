@@ -15,13 +15,17 @@ export function useAudioEngine(state: AppState, dispatch: React.Dispatch<{ type:
   useEffect(() => {
     const engine = engineRef.current;
     if (state.transport === 'playing') {
-      engine.start(
-        () => stateRef.current.bpm,
-        () => stateRef.current.pattern,
-        () => stateRef.current.faders,
-        () => stateRef.current.repeatActive,
-        (_step: number) => dispatch({ type: 'ADVANCE_STEP' })
-      );
+      // init() is idempotent — safe to call if already initialized.
+      // Await ensures start() only runs after AudioContext is ready.
+      engine.init().then(() => {
+        engine.start(
+          () => stateRef.current.bpm,
+          () => stateRef.current.pattern,
+          () => stateRef.current.faders,
+          () => stateRef.current.repeatActive,
+          (_step: number) => dispatch({ type: 'ADVANCE_STEP' })
+        );
+      }).catch(console.error);
     } else if (state.transport === 'stopped') {
       engine.stop();
     }

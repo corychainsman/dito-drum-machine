@@ -69,7 +69,7 @@ export function RadialSequencer({
       <PlayheadArm angleDeg={0} />
 
       {/* Center play/stop button */}
-      <CenterControl transport={transport} dispatch={dispatch} />
+      <CenterControl transport={transport} dispatch={dispatch} onFirstInteraction={onFirstInteraction} />
     </svg>
   );
 }
