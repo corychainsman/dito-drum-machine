@@ -10,12 +10,12 @@ import './styles/global.css';
 export function App() {
   const [state, dispatch] = useReducer(reducer, undefined, getInitialState);
 
-  // Layout params managed separately from drum state
-  const [layout, setLayout] = useState<LayoutParams>(getInitialLayout);
-  const layoutRef = useRef<LayoutParams>(layout);
+  // tpParams is the single stable object Tweakpane writes to in place.
+  // It is NEVER reassigned so Tweakpane's bindings always point at the right object.
+  const tpParams = useRef<LayoutParams>(getInitialLayout());
 
-  // Keep layoutRef in sync with React state for Tweakpane reads
-  useEffect(() => { layoutRef.current = layout; }, [layout]);
+  // layout is derived read-only state for rendering — copied from tpParams on each change.
+  const [layout, setLayout] = useState<LayoutParams>(() => ({ ...tpParams.current }));
 
   // Sync all state (including layout) to URL
   useEffect(() => {
@@ -23,27 +23,28 @@ export function App() {
     window.history.replaceState(null, '', url);
   }, [state.pattern, state.faders, state.bpm, layout]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Tweakpane — created once, bound to layoutRef
+  // Tweakpane — bound once to the stable tpParams object
   useEffect(() => {
     const pane = new Pane({ title: 'Layout', expanded: false });
 
     const stepsFolder = pane.addFolder({ title: 'Steps' });
-    stepsFolder.addBinding(layoutRef.current, 'stepsStart',  { label: 'start',    min: 0, max: 360, step: 1 });
-    stepsFolder.addBinding(layoutRef.current, 'stepsGap',    { label: 'gap',      min: 0, max: 360, step: 1 });
-    stepsFolder.addBinding(layoutRef.current, 'stepsRadius', { label: 'radius %', min: 0, max: 100, step: 1 });
+    stepsFolder.addBinding(tpParams.current, 'stepsStart',  { label: 'start',    min: 0, max: 360, step: 1 });
+    stepsFolder.addBinding(tpParams.current, 'stepsGap',    { label: 'gap',      min: 0, max: 360, step: 1 });
+    stepsFolder.addBinding(tpParams.current, 'stepsRadius', { label: 'radius %', min: 0, max: 100, step: 1 });
 
     const slidersFolder = pane.addFolder({ title: 'Sliders' });
-    slidersFolder.addBinding(layoutRef.current, 'slidersStart',  { label: 'start',    min: 0, max: 360, step: 1 });
-    slidersFolder.addBinding(layoutRef.current, 'slidersGap',    { label: 'gap',      min: 0, max: 360, step: 1 });
-    slidersFolder.addBinding(layoutRef.current, 'slidersRadius', { label: 'radius %', min: 0, max: 100, step: 1 });
+    slidersFolder.addBinding(tpParams.current, 'slidersStart',  { label: 'start',    min: 0, max: 360, step: 1 });
+    slidersFolder.addBinding(tpParams.current, 'slidersGap',    { label: 'gap',      min: 0, max: 360, step: 1 });
+    slidersFolder.addBinding(tpParams.current, 'slidersRadius', { label: 'radius %', min: 0, max: 100, step: 1 });
 
     const buttonsFolder = pane.addFolder({ title: 'Buttons' });
-    buttonsFolder.addBinding(layoutRef.current, 'buttonsStart',  { label: 'start',    min: 0, max: 360, step: 1 });
-    buttonsFolder.addBinding(layoutRef.current, 'buttonsGap',    { label: 'gap',      min: 0, max: 360, step: 1 });
-    buttonsFolder.addBinding(layoutRef.current, 'buttonsRadius', { label: 'radius %', min: 0, max: 100, step: 1 });
+    buttonsFolder.addBinding(tpParams.current, 'buttonsStart',  { label: 'start',    min: 0, max: 360, step: 1 });
+    buttonsFolder.addBinding(tpParams.current, 'buttonsGap',    { label: 'gap',      min: 0, max: 360, step: 1 });
+    buttonsFolder.addBinding(tpParams.current, 'buttonsRadius', { label: 'radius %', min: 0, max: 100, step: 1 });
 
     pane.on('change', () => {
-      setLayout({ ...layoutRef.current });
+      // tpParams.current was mutated in place by Tweakpane — copy into React state
+      setLayout({ ...tpParams.current });
     });
 
     return () => { pane.dispose(); };

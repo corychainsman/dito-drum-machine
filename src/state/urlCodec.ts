@@ -6,21 +6,23 @@ import { NUM_RINGS, NUM_STEPS, MIN_BPM, MAX_BPM, DEFAULT_LAYOUT, DEFAULT_LAYOUT_
 // Radius (0-100%) encoded as one byte (0x00-0xFF)
 
 function encodeAngle(deg: number): string {
-  return Math.round((Math.max(0, Math.min(360, deg)) / 360) * 255)
-    .toString(16).padStart(2, '0');
+  // Guard against NaN/Infinity before clamping (Math.min/max propagate NaN)
+  const safe = isFinite(deg) ? Math.max(0, Math.min(360, deg)) : 0;
+  return Math.round((safe / 360) * 255).toString(16).padStart(2, '0');
 }
 
 function encodeRadius(pct: number): string {
-  return Math.round((Math.max(0, Math.min(100, pct)) / 100) * 255)
-    .toString(16).padStart(2, '0');
+  const safe = isFinite(pct) ? Math.max(0, Math.min(100, pct)) : 0;
+  return Math.round((safe / 100) * 255).toString(16).padStart(2, '0');
 }
 
 function decodeAngle(hex: string): number {
-  return (parseInt(hex, 16) / 255) * 360;
+  // Round to nearest integer so Tweakpane (step:1) starts without a phantom jump
+  return Math.round((parseInt(hex, 16) / 255) * 360);
 }
 
 function decodeRadius(hex: string): number {
-  return (parseInt(hex, 16) / 255) * 100;
+  return Math.round((parseInt(hex, 16) / 255) * 100);
 }
 
 export function layoutToHex(l: LayoutParams): string {
