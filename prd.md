@@ -34,7 +34,7 @@ Orbit is a browser-based radial step sequencer designed as a musical toy for you
 The AI agent MUST create exactly this file tree. No deviations.
 
 ```
-orbit/
+.
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml            (GitHub Actions: build + deploy to GitHub Pages)
@@ -191,7 +191,7 @@ import path from 'path';
 
 export default defineConfig({
   // GitHub Pages: use relative paths so it works at any subpath
-  // e.g. https://username.github.io/orbit/
+  // e.g. https://username.github.io/dito-drum-machine/
   base: './',
   plugins: [
     react(),
@@ -1913,7 +1913,7 @@ jobs:
 
 The `vite.config.ts` uses `base: './'` (relative paths). This ensures all asset references (JS, CSS, manifest, icons) resolve correctly whether the app is hosted at:
 
-- `https://username.github.io/orbit/` (repo named “orbit”)
+- `https://username.github.io/dito-drum-machine/` (repo named “dito-drum-machine”)
 - `https://username.github.io/my-drum-machine/` (any other name)
 - `https://custom-domain.com/` (custom domain)
 
@@ -1924,7 +1924,7 @@ No repo-name-specific configuration is needed.
 URL parameters (`?p=...&f=...&t=...`) work identically on GitHub Pages. The `urlCodec.ts` reads from `window.location.search`, which is path-independent. Shareable URLs will look like:
 
 ```
-https://username.github.io/orbit/?p=5544ff0000&f=88888&t=100
+https://username.github.io/dito-drum-machine/?p=5544ff0000&f=88888&t=100
 ```
 
 ### Repository Setup (One-Time Manual Steps)
@@ -1943,7 +1943,7 @@ After the first successful deployment, the agent (or a CI job) can verify the li
 
 ```bash
 # Check that the site returns 200
-SITE_URL="https://username.github.io/orbit/"
+SITE_URL="https://username.github.io/dito-drum-machine/"
 HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" "$SITE_URL")
 [ "$HTTP_STATUS" = "200" ] && echo "✅ Site is live" || echo "❌ Site returned $HTTP_STATUS"
 ```
@@ -3275,7 +3275,7 @@ This table shows exactly which validation gates run for each file path pattern:
 The following files are added to the project structure from Section 3:
 
 ```
-orbit/
+.
 ├── scripts/
 │   ├── validate.sh               (existing — full validation)
 │   └── dev-validate.ts           (NEW — hot-reload watcher)

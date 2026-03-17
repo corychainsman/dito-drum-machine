@@ -8,7 +8,7 @@ You have three reference documents attached:
 
 ## Your mission
 
-Build Phase 1 from scratch. There is no existing code. You are creating the `orbit/` project directory and everything in it.
+Build Phase 1 from scratch. There is no existing code. You are creating files directly at the repository root.
 
 ## What Phase 1 produces
 
