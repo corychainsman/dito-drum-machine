@@ -39,7 +39,12 @@ export class AudioEngine {
     if (this.ctx.state === 'suspended') {
       await this.ctx.resume();
     }
-    this.sampleBuffers = await generateSamples(this.ctx.sampleRate);
+    // Load samples in the background so start() can fire as soon as ctx is
+    // ready. Kick/snare/hihat are pure synthesis and need no sample buffers;
+    // clap/tom will be silent until buffers arrive (or if generation fails).
+    generateSamples(this.ctx.sampleRate)
+      .then(buffers => { this.sampleBuffers = buffers; })
+      .catch(() => { /* clap/tom silent; core drums still work */ });
     this.setupVisibilityHandling();
   }
 
