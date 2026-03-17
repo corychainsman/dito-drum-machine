@@ -29,7 +29,9 @@ export function urlToState(search: string): Partial<AppState> | null {
   if (!/^[0-9a-fA-F]{5}$/.test(f)) return null;
 
   // Validate tempo
-  const bpm = parseInt(t, 10);
+  if (!/^\d+$/.test(t)) return null;
+
+  const bpm = Number(t);
   if (isNaN(bpm) || bpm < MIN_BPM || bpm > MAX_BPM) return null;
 
   // Parse pattern
