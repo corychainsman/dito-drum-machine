@@ -1,3 +1,5 @@
+import type { LayoutParams } from './types';
+
 // ─── Layout ───────────────────────────────────────────────────────
 export const SVG_SIZE = 400;
 export const SVG_CENTER = SVG_SIZE / 2; // 200
@@ -92,7 +94,7 @@ export const DEFAULT_BPM_VALUE = 100;
 //   slidersStart, slidersGap, slidersRadius,
 //   buttonsStart, buttonsGap, buttonsRadius
 // Angles (0-360°) → 0x00-0xFF; Radius (0-100%) → 0x00-0xFF
-export const DEFAULT_LAYOUT: import('./types').LayoutParams = {
+export const DEFAULT_LAYOUT: LayoutParams = {
   stepsStart: 270,   // 12 o'clock
   stepsGap: 45,      // 360° / 8 steps
   stepsRadius: 76,   // outer ring at 152 SVG units (76% of 200)
