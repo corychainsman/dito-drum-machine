@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pattern, Action, Transport, Faders, LayoutParams } from '../types';
 import { NUM_RINGS, NUM_STEPS, MIN_BPM, MAX_BPM, DEFAULT_LAYOUT, RING_COLORS } from '../constants';
 import { CenterControl } from './CenterControl';
@@ -24,6 +24,11 @@ interface FaderNode extends Point {
   axisY: number;
 }
 
+interface SoundSlot {
+  button: Point;
+  slider: FaderNode;
+}
+
 const SVG_SIZE = 425;
 const SVG_HALF = SVG_SIZE / 2;
 
@@ -34,15 +39,27 @@ const STEP_START_IN_SVG = 247.5;
 const STEP_TOUCH_RADIUS = 17;
 const STEP_VISUAL_RADIUS = 12;
 
-const FADER_RANGE = 36;
-const FADER_TRACK = 22;
-const FADER_NODES: FaderNode[] = [
-  { x: 96.6, y: 95, axisX: 0.707, axisY: 0.707 },
-  { x: 331.9, y: 94.9, axisX: -0.707, axisY: 0.707 },
-  { x: 213, y: 212, axisX: 1, axisY: 0 },
-  { x: 96.6, y: 330, axisX: 0.707, axisY: -0.707 },
-  { x: 331.9, y: 329.9, axisX: -0.707, axisY: -0.707 },
+const FADER_RANGE = 30;
+const FADER_TRACK = 16;
+const SOUND_SLOTS: SoundSlot[] = [
+  {
+    button: { x: 96.6, y: 95 },
+    slider: { x: 142, y: 160, axisX: 0.707, axisY: 0.707 },
+  },
+  {
+    button: { x: 331.9, y: 94.9 },
+    slider: { x: 283, y: 160, axisX: -0.707, axisY: 0.707 },
+  },
+  {
+    button: { x: 96.6, y: 330 },
+    slider: { x: 141, y: 284, axisX: 0.707, axisY: -0.707 },
+  },
+  {
+    button: { x: 331.9, y: 329.9 },
+    slider: { x: 283, y: 284, axisX: -0.707, axisY: -0.707 },
+  },
 ];
+const DEFAULT_SLOT_SOUNDS: [number, number, number, number] = [0, 1, 3, 4];
 
 const RANDOM_POS = { x: 213, y: 66 };
 const TEMPO_UP_POS = { x: 359, y: 212 };
@@ -80,6 +97,7 @@ export function RadialSequencer({
   onFirstInteraction,
 }: RadialSequencerProps) {
   const isPlaying = transport === 'playing';
+  const [slotVoices, setSlotVoices] = useState<[number, number, number, number]>(DEFAULT_SLOT_SOUNDS);
 
   const stepStartDeg = STEP_START_IN_SVG + (layout.stepsStart - DEFAULT_LAYOUT.stepsStart);
   const stepGapDeg = layout.stepsGap;
@@ -113,8 +131,19 @@ export function RadialSequencer({
     dispatch({ type: 'SET_REPEAT', active: false });
   };
 
-  const updateFaderFromPointer = (e: React.PointerEvent<SVGGElement>, ring: number) => {
-    const node = FADER_NODES[ring];
+  const handleCycleSound = (slotIndex: number) => {
+    onFirstInteraction?.();
+    setSlotVoices((previous) => {
+      const next = [...previous] as [number, number, number, number];
+      next[slotIndex] = (next[slotIndex] + 1) % NUM_RINGS;
+      return next;
+    });
+    if (navigator.vibrate) navigator.vibrate(8);
+  };
+
+  const updateFaderFromPointer = (e: React.PointerEvent<SVGGElement>, slotIndex: number) => {
+    const node = SOUND_SLOTS[slotIndex].slider;
+    const ring = slotVoices[slotIndex];
     const point = getSvgPoint(e);
     const dx = point.x - node.x;
     const dy = point.y - node.y;
@@ -123,15 +152,15 @@ export function RadialSequencer({
     dispatch({ type: 'SET_FADER', ring, value: normalized });
   };
 
-  const handleFaderDown = (e: React.PointerEvent<SVGGElement>, ring: number) => {
+  const handleFaderDown = (e: React.PointerEvent<SVGGElement>, slotIndex: number) => {
     onFirstInteraction?.();
     e.currentTarget.setPointerCapture(e.pointerId);
-    updateFaderFromPointer(e, ring);
+    updateFaderFromPointer(e, slotIndex);
   };
 
-  const handleFaderMove = (e: React.PointerEvent<SVGGElement>, ring: number) => {
+  const handleFaderMove = (e: React.PointerEvent<SVGGElement>, slotIndex: number) => {
     if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
-    updateFaderFromPointer(e, ring);
+    updateFaderFromPointer(e, slotIndex);
   };
 
   const handleFaderUp = (e: React.PointerEvent<SVGGElement>) => {
@@ -198,8 +227,10 @@ export function RadialSequencer({
         )}
 
         <g data-testid="fader-tray">
-          {faders.map((value, ring) => {
-            const node = FADER_NODES[ring];
+          {SOUND_SLOTS.map((slot, slotIndex) => {
+            const ring = slotVoices[slotIndex];
+            const node = slot.slider;
+            const value = faders[ring];
             const offset = (value - 0.5) * FADER_RANGE;
             const knobX = node.x + node.axisX * offset;
             const knobY = node.y + node.axisY * offset;
@@ -210,10 +241,10 @@ export function RadialSequencer({
 
             return (
               <g
-                key={ring}
-                data-testid={`fader-${ring}`}
-                onPointerDown={(e) => handleFaderDown(e, ring)}
-                onPointerMove={(e) => handleFaderMove(e, ring)}
+                key={slotIndex}
+                data-testid={`fader-${slotIndex}`}
+                onPointerDown={(e) => handleFaderDown(e, slotIndex)}
+                onPointerMove={(e) => handleFaderMove(e, slotIndex)}
                 onPointerUp={handleFaderUp}
                 onPointerCancel={handleFaderUp}
                 style={{ cursor: 'pointer' }}
@@ -226,6 +257,21 @@ export function RadialSequencer({
             );
           })}
         </g>
+
+        {SOUND_SLOTS.map((slot, slotIndex) => {
+          const ring = slotVoices[slotIndex];
+          return (
+            <g
+              key={`sound-cycle-${slotIndex}`}
+              data-testid={`sound-cycle-${slotIndex}`}
+              onPointerDown={() => handleCycleSound(slotIndex)}
+              style={{ cursor: 'pointer' }}
+            >
+              <circle cx={slot.button.x} cy={slot.button.y} r="24" fill="transparent" />
+              <circle cx={slot.button.x} cy={slot.button.y} r="5.5" fill={RING_COLORS[ring]} stroke="white" strokeWidth="1.5" />
+            </g>
+          );
+        })}
 
         <g onPointerDown={handleRandomize} style={{ cursor: 'pointer' }} data-testid="random-button">
           <circle cx={RANDOM_POS.x} cy={RANDOM_POS.y} r="22" fill="transparent" />
