@@ -33,27 +33,27 @@
 <g filter="url(#filter6_d_2_263)">
 <circle cx="66" cy="212" r="18" fill="#FFE900"/>
 </g>
-<g filter="url(#filter7_i_2_263)">
+<g id="slider-group-0">
 <rect id="slider-track-0" width="6" height="58" rx="3" transform="matrix(0.707107 0.707107 0.707107 -0.707107 262 161.012)" fill="#EDEDED"/>
-<g filter="url(#filter8_d_2_263)">
+<g>
 <rect id="slider-thumb-0" width="4" height="9.66667" rx="2" transform="matrix(0.707107 0.707107 0.707107 -0.707107 279.796 144.631)" fill="#D9D9D9"/>
 </g>
 </g>
-<g filter="url(#filter9_i_2_263)">
+<g id="slider-group-1">
 <rect id="slider-track-1" x="120" y="124.243" width="6" height="58" rx="3" transform="rotate(-45 120 124.243)" fill="#EDEDED"/>
-<g filter="url(#filter10_d_2_263)">
+<g>
 <rect id="slider-thumb-1" x="137.796" y="140.624" width="4" height="9.66667" rx="2" transform="rotate(-45 137.796 140.624)" fill="#D9D9D9"/>
 </g>
 </g>
-<g filter="url(#filter11_i_2_263)">
+<g id="slider-group-2">
 <rect id="slider-track-2" width="6" height="58" rx="3" transform="matrix(0.707107 0.707107 0.707107 -0.707107 119 302.012)" fill="#EDEDED"/>
-<g filter="url(#filter12_d_2_263)">
+<g>
 <rect id="slider-thumb-2" width="4" height="9.66667" rx="2" transform="matrix(0.707107 0.707107 0.707107 -0.707107 136.796 285.631)" fill="#D9D9D9"/>
 </g>
 </g>
-<g filter="url(#filter13_i_2_263)">
+<g id="slider-group-3">
 <rect id="slider-track-3" x="262" y="265.243" width="6" height="58" rx="3" transform="rotate(-45 262 265.243)" fill="#EDEDED"/>
-<g filter="url(#filter14_d_2_263)">
+<g>
 <rect id="slider-thumb-3" x="279.796" y="281.624" width="4" height="9.66667" rx="2" transform="rotate(-45 279.796 281.624)" fill="#D9D9D9"/>
 </g>
 </g>
