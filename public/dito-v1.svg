@@ -33,34 +33,34 @@
 <g filter="url(#filter6_d_2_263)">
 <circle cx="66" cy="212" r="18" fill="#FFE900"/>
 </g>
-<g filter="url(#filter7_i_2_263)">
-<rect width="6" height="58" rx="3" transform="matrix(0.707107 0.707107 0.707107 -0.707107 262 161.012)" fill="#EDEDED"/>
-<g filter="url(#filter8_d_2_263)">
-<rect width="4" height="9.66667" rx="2" transform="matrix(0.707107 0.707107 0.707107 -0.707107 279.796 144.631)" fill="#D9D9D9"/>
+<g id="slider-group-0">
+<rect id="slider-track-0" width="6" height="58" rx="3" transform="matrix(0.707107 0.707107 0.707107 -0.707107 262 161.012)" fill="#EDEDED"/>
+<g>
+<rect id="slider-thumb-0" width="4" height="9.66667" rx="2" transform="matrix(0.707107 0.707107 0.707107 -0.707107 279.796 144.631)" fill="#D9D9D9"/>
 </g>
 </g>
-<g filter="url(#filter9_i_2_263)">
-<rect x="120" y="124.243" width="6" height="58" rx="3" transform="rotate(-45 120 124.243)" fill="#EDEDED"/>
-<g filter="url(#filter10_d_2_263)">
-<rect x="137.796" y="140.624" width="4" height="9.66667" rx="2" transform="rotate(-45 137.796 140.624)" fill="#D9D9D9"/>
+<g id="slider-group-1">
+<rect id="slider-track-1" x="120" y="124.243" width="6" height="58" rx="3" transform="rotate(-45 120 124.243)" fill="#EDEDED"/>
+<g>
+<rect id="slider-thumb-1" x="137.796" y="140.624" width="4" height="9.66667" rx="2" transform="rotate(-45 137.796 140.624)" fill="#D9D9D9"/>
 </g>
 </g>
-<g filter="url(#filter11_i_2_263)">
-<rect width="6" height="58" rx="3" transform="matrix(0.707107 0.707107 0.707107 -0.707107 119 302.012)" fill="#EDEDED"/>
-<g filter="url(#filter12_d_2_263)">
-<rect width="4" height="9.66667" rx="2" transform="matrix(0.707107 0.707107 0.707107 -0.707107 136.796 285.631)" fill="#D9D9D9"/>
+<g id="slider-group-2">
+<rect id="slider-track-2" width="6" height="58" rx="3" transform="matrix(0.707107 0.707107 0.707107 -0.707107 119 302.012)" fill="#EDEDED"/>
+<g>
+<rect id="slider-thumb-2" width="4" height="9.66667" rx="2" transform="matrix(0.707107 0.707107 0.707107 -0.707107 136.796 285.631)" fill="#D9D9D9"/>
 </g>
 </g>
-<g filter="url(#filter13_i_2_263)">
-<rect x="262" y="265.243" width="6" height="58" rx="3" transform="rotate(-45 262 265.243)" fill="#EDEDED"/>
-<g filter="url(#filter14_d_2_263)">
-<rect x="279.796" y="281.624" width="4" height="9.66667" rx="2" transform="rotate(-45 279.796 281.624)" fill="#D9D9D9"/>
+<g id="slider-group-3">
+<rect id="slider-track-3" x="262" y="265.243" width="6" height="58" rx="3" transform="rotate(-45 262 265.243)" fill="#EDEDED"/>
+<g>
+<rect id="slider-thumb-3" x="279.796" y="281.624" width="4" height="9.66667" rx="2" transform="rotate(-45 279.796 281.624)" fill="#D9D9D9"/>
 </g>
 </g>
 <g filter="url(#filter15_d_2_263)">
 <rect x="62.6447" y="95" width="48" height="48" rx="4" transform="rotate(-45 62.6447 95)" fill="#B4C5D5"/>
 </g>
-<rect x="66.8873" y="95" width="42" height="42" rx="1" transform="rotate(-45 66.8873 95)" fill="black"/>
+<rect id="cycle-button-0" x="66.8873" y="95" width="42" height="42" rx="1" transform="rotate(-45 66.8873 95)" fill="black"/>
 <path d="M70.8854 123.327L78.287 121.168C80.4759 120.529 81.1805 117.779 79.5682 116.166L74.3257 110.924C72.7134 109.311 69.9629 110.016 69.3244 112.205L67.1653 119.607C66.5021 121.88 68.6116 123.99 70.8854 123.327Z" fill="black"/>
 <path d="M124.912 69.2996L122.753 76.7012C122.115 78.8901 119.364 79.5947 117.752 77.9824L112.509 72.7399C110.897 71.1276 111.602 68.3771 113.791 67.7386L121.192 65.5795C123.466 64.9163 125.576 67.0258 124.912 69.2996Z" fill="black"/>
 <g filter="url(#filter16_d_2_263)">
@@ -70,19 +70,19 @@
 <g filter="url(#filter17_d_2_263)">
 <rect x="96.5858" y="296.059" width="48" height="48" rx="4" transform="rotate(45 96.5858 296.059)" fill="#B4C5D5"/>
 </g>
-<rect x="96.5858" y="300.302" width="42" height="42" rx="1" transform="rotate(45 96.5858 300.302)" fill="black"/>
+<rect id="cycle-button-2" x="96.5858" y="300.302" width="42" height="42" rx="1" transform="rotate(45 96.5858 300.302)" fill="black"/>
 <path d="M68.2592 304.3L70.4183 311.701C71.0568 313.89 73.8073 314.595 75.4196 312.982L80.6621 307.74C82.2744 306.128 81.5698 303.377 79.3809 302.739L71.9793 300.58C69.7055 299.916 67.5959 302.026 68.2592 304.3Z" fill="black"/>
 <path d="M122.286 358.327L114.885 356.168C112.696 355.529 111.991 352.779 113.603 351.166L118.846 345.924C120.458 344.311 123.209 345.016 123.847 347.205L126.006 354.607C126.67 356.88 124.56 358.99 122.286 358.327Z" fill="black"/>
 <g filter="url(#filter18_d_2_263)">
 <rect x="331.941" y="61" width="48" height="48" rx="4" transform="rotate(45 331.941 61)" fill="#B4C5D5"/>
 </g>
-<rect x="331.941" y="65.2426" width="42" height="42" rx="1" transform="rotate(45 331.941 65.2426)" fill="black"/>
+<rect id="cycle-button-1" x="331.941" y="65.2426" width="42" height="42" rx="1" transform="rotate(45 331.941 65.2426)" fill="black"/>
 <path d="M303.615 69.2407L305.774 76.6424C306.412 78.8312 309.163 79.5359 310.775 77.9236L316.018 72.681C317.63 71.0687 316.925 68.3182 314.736 67.6797L307.335 65.5206C305.061 64.8574 302.951 66.967 303.615 69.2407Z" fill="black"/>
 <path d="M357.642 123.268L350.24 121.109C348.051 120.47 347.346 117.72 348.959 116.107L354.201 110.865C355.814 109.252 358.564 109.957 359.203 112.146L361.362 119.548C362.025 121.821 359.915 123.931 357.642 123.268Z" fill="black"/>
 <g filter="url(#filter19_d_2_263)">
 <rect x="298" y="329.941" width="48" height="48" rx="4" transform="rotate(-45 298 329.941)" fill="#B4C5D5"/>
 </g>
-<rect x="302.243" y="329.941" width="42" height="42" rx="1" transform="rotate(-45 302.243 329.941)" fill="black"/>
+<rect id="cycle-button-3" x="302.243" y="329.941" width="42" height="42" rx="1" transform="rotate(-45 302.243 329.941)" fill="black"/>
 <path d="M306.241 358.268L313.642 356.109C315.831 355.47 316.536 352.72 314.924 351.107L309.681 345.865C308.069 344.252 305.318 344.957 304.68 347.146L302.521 354.548C301.857 356.821 303.967 358.931 306.241 358.268Z" fill="black"/>
 <path d="M360.268 304.241L358.109 311.642C357.47 313.831 354.72 314.536 353.107 312.924L347.865 307.681C346.253 306.069 346.957 303.318 349.146 302.68L356.548 300.521C358.821 299.857 360.931 301.967 360.268 304.241Z" fill="black"/>
 <g filter="url(#filter20_d_2_263)">
