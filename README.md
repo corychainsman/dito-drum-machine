@@ -1,6 +1,6 @@
-# Orbit Drum Machine
+# Dito Drum Machine
 
-Orbit is a browser-based radial drum sequencer built with React, TypeScript, and Vite.
+Dito is a browser-based radial drum sequencer built with React, TypeScript, and Vite.
 
 ## What You Need
 
