@@ -28,6 +28,7 @@ interface FaderNode extends Point {
 interface SoundSlot {
   button: Point;
   slider: FaderNode;
+  sliderElement: number;
 }
 
 const SVG_SIZE = 425;
@@ -44,19 +45,23 @@ const FADER_RANGE = 30;
 const SOUND_SLOTS: SoundSlot[] = [
   {
     button: { x: 96.6, y: 95 },
-    slider: { x: 142, y: 160, axisX: 0.707, axisY: 0.707 },
+    slider: { x: 142.6, y: 146.8, axisX: 0.707, axisY: 0.707 },
+    sliderElement: 1,
   },
   {
     button: { x: 331.9, y: 94.9 },
-    slider: { x: 283, y: 160, axisX: -0.707, axisY: 0.707 },
+    slider: { x: 284.6, y: 142.6, axisX: -0.707, axisY: 0.707 },
+    sliderElement: 0,
   },
   {
     button: { x: 96.6, y: 330 },
-    slider: { x: 141, y: 284, axisX: 0.707, axisY: -0.707 },
+    slider: { x: 141.6, y: 283.6, axisX: 0.707, axisY: -0.707 },
+    sliderElement: 2,
   },
   {
     button: { x: 331.9, y: 329.9 },
-    slider: { x: 283, y: 284, axisX: -0.707, axisY: -0.707 },
+    slider: { x: 284.6, y: 287.6, axisX: -0.707, axisY: -0.707 },
+    sliderElement: 3,
   },
 ];
 const DEFAULT_SLOT_SOUNDS: [number, number, number, number] = [0, 1, 3, 4];
@@ -191,15 +196,15 @@ export function RadialSequencer({
         button.setAttribute('stroke-width', '2.25');
       }
 
-      const thumb = faceplate.querySelector<SVGRectElement>(`#slider-thumb-${slotIndex}`);
+      const thumb = faceplate.querySelector<SVGRectElement>(`#slider-thumb-${slot.sliderElement}`);
       if (thumb) {
-        if (!thumbBaseTransforms.current[slotIndex]) {
-          thumbBaseTransforms.current[slotIndex] = thumb.getAttribute('transform') ?? '';
+        if (!thumbBaseTransforms.current[slot.sliderElement]) {
+          thumbBaseTransforms.current[slot.sliderElement] = thumb.getAttribute('transform') ?? '';
         }
 
         thumb.setAttribute(
           'transform',
-          `${thumbBaseTransforms.current[slotIndex]} translate(${slot.slider.axisX * offset} ${slot.slider.axisY * offset})`
+          `${thumbBaseTransforms.current[slot.sliderElement]} translate(${slot.slider.axisX * offset} ${slot.slider.axisY * offset})`
         );
         thumb.setAttribute('fill', color);
       }
@@ -267,7 +272,7 @@ export function RadialSequencer({
                 onPointerCancel={handleFaderUp}
                 style={{ cursor: 'pointer' }}
               >
-                <circle cx={slot.slider.x} cy={slot.slider.y} r="28" fill="transparent" />
+                <circle cx={slot.slider.x} cy={slot.slider.y} r="22" fill="transparent" />
               </g>
             );
           })}
