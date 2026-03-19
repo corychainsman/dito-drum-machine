@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Pattern, Action, Transport, Faders, LayoutParams } from '../types';
 import { NUM_RINGS, NUM_STEPS, MIN_BPM, MAX_BPM, DEFAULT_LAYOUT, RING_COLORS } from '../constants';
 import { CenterControl } from './CenterControl';
+import ditoFaceplateRaw from '../assets/dito-v1.svg?raw';
 
 interface RadialSequencerProps {
   pattern: Pattern;
@@ -40,7 +41,6 @@ const STEP_TOUCH_RADIUS = 17;
 const STEP_VISUAL_RADIUS = 12;
 
 const FADER_RANGE = 30;
-const FADER_TRACK = 16;
 const SOUND_SLOTS: SoundSlot[] = [
   {
     button: { x: 96.6, y: 95 },
@@ -60,6 +60,9 @@ const SOUND_SLOTS: SoundSlot[] = [
   },
 ];
 const DEFAULT_SLOT_SOUNDS: [number, number, number, number] = [0, 1, 3, 4];
+const FACEPLATE_INNER = ditoFaceplateRaw
+  .replace(/^<svg[^>]*>/, '')
+  .replace(/<\/svg>\s*$/, '');
 
 const RANDOM_POS = { x: 213, y: 66 };
 const TEMPO_UP_POS = { x: 359, y: 212 };
@@ -98,6 +101,8 @@ export function RadialSequencer({
 }: RadialSequencerProps) {
   const isPlaying = transport === 'playing';
   const [slotVoices, setSlotVoices] = useState<[number, number, number, number]>(DEFAULT_SLOT_SOUNDS);
+  const faceplateRef = useRef<SVGGElement>(null);
+  const thumbBaseTransforms = useRef<string[]>([]);
 
   const stepStartDeg = STEP_START_IN_SVG + (layout.stepsStart - DEFAULT_LAYOUT.stepsStart);
   const stepGapDeg = layout.stepsGap;
@@ -169,6 +174,38 @@ export function RadialSequencer({
     }
   };
 
+  useEffect(() => {
+    const faceplate = faceplateRef.current;
+    if (!faceplate) return;
+
+    SOUND_SLOTS.forEach((slot, slotIndex) => {
+      const ring = slotVoices[slotIndex];
+      const color = RING_COLORS[ring];
+      const sliderValue = faders[ring];
+      const offset = (sliderValue - 0.5) * FADER_RANGE;
+
+      const button = faceplate.querySelector<SVGRectElement>(`#cycle-button-${slotIndex}`);
+      if (button) {
+        button.setAttribute('fill', '#050505');
+        button.setAttribute('stroke', color);
+        button.setAttribute('stroke-width', '2.25');
+      }
+
+      const thumb = faceplate.querySelector<SVGRectElement>(`#slider-thumb-${slotIndex}`);
+      if (thumb) {
+        if (!thumbBaseTransforms.current[slotIndex]) {
+          thumbBaseTransforms.current[slotIndex] = thumb.getAttribute('transform') ?? '';
+        }
+
+        thumb.setAttribute(
+          'transform',
+          `${thumbBaseTransforms.current[slotIndex]} translate(${slot.slider.axisX * offset} ${slot.slider.axisY * offset})`
+        );
+        thumb.setAttribute('fill', color);
+      }
+    });
+  }, [faders, slotVoices]);
+
   return (
     <div className="board-shell" data-testid="board-shell">
       <svg
@@ -180,15 +217,7 @@ export function RadialSequencer({
         role="grid"
         aria-label="Drum pattern editor"
       >
-        <image
-          href="/dito-v1.svg"
-          x="0"
-          y="0"
-          width={SVG_SIZE}
-          height={SVG_SIZE}
-          preserveAspectRatio="xMidYMid meet"
-          style={{ pointerEvents: 'none' }}
-        />
+        <g ref={faceplateRef} dangerouslySetInnerHTML={{ __html: FACEPLATE_INNER }} />
 
         {Array.from({ length: NUM_RINGS }, (_, ring) =>
           Array.from({ length: NUM_STEPS }, (_, step) => {
@@ -228,17 +257,6 @@ export function RadialSequencer({
 
         <g data-testid="fader-tray">
           {SOUND_SLOTS.map((slot, slotIndex) => {
-            const ring = slotVoices[slotIndex];
-            const node = slot.slider;
-            const value = faders[ring];
-            const offset = (value - 0.5) * FADER_RANGE;
-            const knobX = node.x + node.axisX * offset;
-            const knobY = node.y + node.axisY * offset;
-            const x1 = node.x - node.axisX * FADER_TRACK;
-            const y1 = node.y - node.axisY * FADER_TRACK;
-            const x2 = node.x + node.axisX * FADER_TRACK;
-            const y2 = node.y + node.axisY * FADER_TRACK;
-
             return (
               <g
                 key={slotIndex}
@@ -249,17 +267,13 @@ export function RadialSequencer({
                 onPointerCancel={handleFaderUp}
                 style={{ cursor: 'pointer' }}
               >
-                <circle cx={node.x} cy={node.y} r="28" fill="transparent" />
-                <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#BEC7D0" strokeWidth="3" strokeLinecap="round" />
-                <line x1={x1} y1={y1} x2={knobX} y2={knobY} stroke={RING_COLORS[ring]} strokeWidth="4" strokeLinecap="round" />
-                <circle cx={knobX} cy={knobY} r="6" fill={RING_COLORS[ring]} stroke="white" strokeWidth="1.5" />
+                <circle cx={slot.slider.x} cy={slot.slider.y} r="28" fill="transparent" />
               </g>
             );
           })}
         </g>
 
         {SOUND_SLOTS.map((slot, slotIndex) => {
-          const ring = slotVoices[slotIndex];
           return (
             <g
               key={`sound-cycle-${slotIndex}`}
@@ -268,7 +282,6 @@ export function RadialSequencer({
               style={{ cursor: 'pointer' }}
             >
               <circle cx={slot.button.x} cy={slot.button.y} r="24" fill="transparent" />
-              <circle cx={slot.button.x} cy={slot.button.y} r="5.5" fill={RING_COLORS[ring]} stroke="white" strokeWidth="1.5" />
             </g>
           );
         })}
