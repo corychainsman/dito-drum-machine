@@ -204,7 +204,7 @@ export function RadialSequencer({
 
         thumb.setAttribute(
           'transform',
-          `${thumbBaseTransforms.current[slot.sliderElement]} translate(${slot.slider.axisX * offset} ${slot.slider.axisY * offset})`
+          `translate(${slot.slider.axisX * offset} ${slot.slider.axisY * offset}) ${thumbBaseTransforms.current[slot.sliderElement]}`
         );
         thumb.setAttribute('fill', color);
       }
