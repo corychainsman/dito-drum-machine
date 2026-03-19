@@ -7,9 +7,19 @@ interface CenterControlProps {
   transport: Transport;
   dispatch: React.Dispatch<Action>;
   onFirstInteraction?: () => void;
+  cx?: number;
+  cy?: number;
+  radius?: number;
 }
 
-export function CenterControl({ transport, dispatch, onFirstInteraction }: CenterControlProps) {
+export function CenterControl({
+  transport,
+  dispatch,
+  onFirstInteraction,
+  cx = 200,
+  cy = 200,
+  radius = 35,
+}: CenterControlProps) {
   const isPlaying = transport === 'playing';
 
   function handlePointerDown(e: React.PointerEvent<SVGGElement>) {
@@ -31,14 +41,18 @@ export function CenterControl({ transport, dispatch, onFirstInteraction }: Cente
       style={{ cursor: 'pointer' }}
     >
       <circle
-        cx="200"
-        cy="200"
-        r="35"
+        cx={cx}
+        cy={cy}
+        r={radius}
         fill="rgba(255,255,255,0.08)"
         stroke="rgba(255,255,255,0.15)"
         strokeWidth="1.5"
       />
-      {isPlaying ? <StopIcon /> : <PlayIcon />}
+      {isPlaying ? (
+        <StopIcon cx={cx} cy={cy} size={radius * 0.6} />
+      ) : (
+        <PlayIcon cx={cx} cy={cy} size={radius * 0.7} />
+      )}
     </g>
   );
 }
