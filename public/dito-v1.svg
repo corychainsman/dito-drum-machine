@@ -7,38 +7,38 @@
 <path d="M420.308 119.796C423.308 122.797 424.993 126.866 424.993 131.109L425 293.892C425 298.136 423.314 302.206 420.313 305.207L305.204 420.308C302.203 423.308 298.134 424.993 293.891 424.993L131.108 425C126.864 425 122.794 423.314 119.793 420.313L4.69243 305.204C1.69227 302.203 0.00674338 298.134 0.00657861 293.891L0.000257385 131.108C9.25856e-05 126.864 1.68599 122.794 4.68699 119.793L119.796 4.69243C122.797 1.69227 126.866 0.00674338 131.109 0.00657861L293.892 0.000257385C298.136 9.25856e-05 302.206 1.68599 305.207 4.68699L420.308 119.796ZM137.735 16.0056C133.492 16.0058 129.423 17.6913 126.422 20.6916L20.6869 126.421C17.6859 129.422 16.0001 133.492 16.0002 137.735L16.0056 287.264C16.0058 291.507 17.6913 295.576 20.6916 298.577L126.421 404.312C129.422 407.313 133.492 408.999 137.735 408.999L287.264 408.993C291.507 408.993 295.576 407.308 298.577 404.307L404.312 298.578C407.313 295.577 408.999 291.507 408.999 287.264L408.993 137.735C408.993 133.492 407.308 129.423 404.307 126.422L298.578 20.6869C295.577 17.6859 291.507 16.0001 287.264 16.0002L137.735 16.0056Z" fill="#5D8C86"/>
 </g>
 <g filter="url(#filter2_d_2_263)">
-<circle id="step-0-0" data-testid="pad-0-0" data-ring="0" data-step="0" cx="142.086" cy="42.506" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-0-1" data-testid="pad-0-1" data-ring="0" data-step="1" cx="282.914" cy="42.506" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-0-2" data-testid="pad-0-2" data-ring="0" data-step="2" cx="382.494" cy="142.086" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-0-3" data-testid="pad-0-3" data-ring="0" data-step="3" cx="382.494" cy="282.914" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-0-4" data-testid="pad-0-4" data-ring="0" data-step="4" cx="282.914" cy="382.494" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-0-5" data-testid="pad-0-5" data-ring="0" data-step="5" cx="142.086" cy="382.494" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-0-6" data-testid="pad-0-6" data-ring="0" data-step="6" cx="42.506" cy="282.914" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-0-7" data-testid="pad-0-7" data-ring="0" data-step="7" cx="42.506" cy="142.086" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-1-0" data-testid="pad-1-0" data-ring="1" data-step="0" cx="159.307" cy="84.081" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-1-1" data-testid="pad-1-1" data-ring="1" data-step="1" cx="265.693" cy="84.081" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-1-2" data-testid="pad-1-2" data-ring="1" data-step="2" cx="340.919" cy="159.307" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-1-3" data-testid="pad-1-3" data-ring="1" data-step="3" cx="340.919" cy="265.693" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-1-4" data-testid="pad-1-4" data-ring="1" data-step="4" cx="265.693" cy="340.919" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-1-5" data-testid="pad-1-5" data-ring="1" data-step="5" cx="159.307" cy="340.919" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-1-6" data-testid="pad-1-6" data-ring="1" data-step="6" cx="84.081" cy="265.693" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-1-7" data-testid="pad-1-7" data-ring="1" data-step="7" cx="84.081" cy="159.307" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-2-0" data-testid="pad-2-0" data-ring="2" data-step="0" cx="176.528" cy="125.655" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-2-1" data-testid="pad-2-1" data-ring="2" data-step="1" cx="248.472" cy="125.655" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-2-2" data-testid="pad-2-2" data-ring="2" data-step="2" cx="299.345" cy="176.528" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-2-3" data-testid="pad-2-3" data-ring="2" data-step="3" cx="299.345" cy="248.472" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-2-4" data-testid="pad-2-4" data-ring="2" data-step="4" cx="248.472" cy="299.345" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-2-5" data-testid="pad-2-5" data-ring="2" data-step="5" cx="176.528" cy="299.345" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-2-6" data-testid="pad-2-6" data-ring="2" data-step="6" cx="125.655" cy="248.472" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-2-7" data-testid="pad-2-7" data-ring="2" data-step="7" cx="125.655" cy="176.528" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-3-0" data-testid="pad-3-0" data-ring="3" data-step="0" cx="193.749" cy="167.230" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-3-1" data-testid="pad-3-1" data-ring="3" data-step="1" cx="231.251" cy="167.230" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-3-2" data-testid="pad-3-2" data-ring="3" data-step="2" cx="257.770" cy="193.749" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-3-3" data-testid="pad-3-3" data-ring="3" data-step="3" cx="257.770" cy="231.251" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-3-4" data-testid="pad-3-4" data-ring="3" data-step="4" cx="231.251" cy="257.770" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-3-5" data-testid="pad-3-5" data-ring="3" data-step="5" cx="193.749" cy="257.770" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-3-6" data-testid="pad-3-6" data-ring="3" data-step="6" cx="167.230" cy="231.251" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
-<circle id="step-3-7" data-testid="pad-3-7" data-ring="3" data-step="7" cx="167.230" cy="193.749" r="12" fill="#D2DBE4" stroke="#9EA8B2" stroke-width="1.5"/>
+<circle id="step-0-0" data-testid="pad-0-0" data-ring="0" data-step="0" cx="142.086" cy="42.506" r="12" fill="#D2DBE4" />
+<circle id="step-0-1" data-testid="pad-0-1" data-ring="0" data-step="1" cx="282.914" cy="42.506" r="12" fill="#D2DBE4" />
+<circle id="step-0-2" data-testid="pad-0-2" data-ring="0" data-step="2" cx="382.494" cy="142.086" r="12" fill="#D2DBE4" />
+<circle id="step-0-3" data-testid="pad-0-3" data-ring="0" data-step="3" cx="382.494" cy="282.914" r="12" fill="#D2DBE4" />
+<circle id="step-0-4" data-testid="pad-0-4" data-ring="0" data-step="4" cx="282.914" cy="382.494" r="12" fill="#D2DBE4" />
+<circle id="step-0-5" data-testid="pad-0-5" data-ring="0" data-step="5" cx="142.086" cy="382.494" r="12" fill="#D2DBE4" />
+<circle id="step-0-6" data-testid="pad-0-6" data-ring="0" data-step="6" cx="42.506" cy="282.914" r="12" fill="#D2DBE4" />
+<circle id="step-0-7" data-testid="pad-0-7" data-ring="0" data-step="7" cx="42.506" cy="142.086" r="12" fill="#D2DBE4" />
+<circle id="step-1-0" data-testid="pad-1-0" data-ring="1" data-step="0" cx="159.307" cy="84.081" r="12" fill="#D2DBE4" />
+<circle id="step-1-1" data-testid="pad-1-1" data-ring="1" data-step="1" cx="265.693" cy="84.081" r="12" fill="#D2DBE4" />
+<circle id="step-1-2" data-testid="pad-1-2" data-ring="1" data-step="2" cx="340.919" cy="159.307" r="12" fill="#D2DBE4" />
+<circle id="step-1-3" data-testid="pad-1-3" data-ring="1" data-step="3" cx="340.919" cy="265.693" r="12" fill="#D2DBE4" />
+<circle id="step-1-4" data-testid="pad-1-4" data-ring="1" data-step="4" cx="265.693" cy="340.919" r="12" fill="#D2DBE4" />
+<circle id="step-1-5" data-testid="pad-1-5" data-ring="1" data-step="5" cx="159.307" cy="340.919" r="12" fill="#D2DBE4" />
+<circle id="step-1-6" data-testid="pad-1-6" data-ring="1" data-step="6" cx="84.081" cy="265.693" r="12" fill="#D2DBE4" />
+<circle id="step-1-7" data-testid="pad-1-7" data-ring="1" data-step="7" cx="84.081" cy="159.307" r="12" fill="#D2DBE4" />
+<circle id="step-2-0" data-testid="pad-2-0" data-ring="2" data-step="0" cx="176.528" cy="125.655" r="12" fill="#D2DBE4" />
+<circle id="step-2-1" data-testid="pad-2-1" data-ring="2" data-step="1" cx="248.472" cy="125.655" r="12" fill="#D2DBE4" />
+<circle id="step-2-2" data-testid="pad-2-2" data-ring="2" data-step="2" cx="299.345" cy="176.528" r="12" fill="#D2DBE4" />
+<circle id="step-2-3" data-testid="pad-2-3" data-ring="2" data-step="3" cx="299.345" cy="248.472" r="12" fill="#D2DBE4" />
+<circle id="step-2-4" data-testid="pad-2-4" data-ring="2" data-step="4" cx="248.472" cy="299.345" r="12" fill="#D2DBE4" />
+<circle id="step-2-5" data-testid="pad-2-5" data-ring="2" data-step="5" cx="176.528" cy="299.345" r="12" fill="#D2DBE4" />
+<circle id="step-2-6" data-testid="pad-2-6" data-ring="2" data-step="6" cx="125.655" cy="248.472" r="12" fill="#D2DBE4" />
+<circle id="step-2-7" data-testid="pad-2-7" data-ring="2" data-step="7" cx="125.655" cy="176.528" r="12" fill="#D2DBE4" />
+<circle id="step-3-0" data-testid="pad-3-0" data-ring="3" data-step="0" cx="193.749" cy="167.230" r="12" fill="#D2DBE4" />
+<circle id="step-3-1" data-testid="pad-3-1" data-ring="3" data-step="1" cx="231.251" cy="167.230" r="12" fill="#D2DBE4" />
+<circle id="step-3-2" data-testid="pad-3-2" data-ring="3" data-step="2" cx="257.770" cy="193.749" r="12" fill="#D2DBE4" />
+<circle id="step-3-3" data-testid="pad-3-3" data-ring="3" data-step="3" cx="257.770" cy="231.251" r="12" fill="#D2DBE4" />
+<circle id="step-3-4" data-testid="pad-3-4" data-ring="3" data-step="4" cx="231.251" cy="257.770" r="12" fill="#D2DBE4" />
+<circle id="step-3-5" data-testid="pad-3-5" data-ring="3" data-step="5" cx="193.749" cy="257.770" r="12" fill="#D2DBE4" />
+<circle id="step-3-6" data-testid="pad-3-6" data-ring="3" data-step="6" cx="167.230" cy="231.251" r="12" fill="#D2DBE4" />
+<circle id="step-3-7" data-testid="pad-3-7" data-ring="3" data-step="7" cx="167.230" cy="193.749" r="12" fill="#D2DBE4" />
 </g>
 <g filter="url(#filter3_d_2_263)">
 <circle cx="213" cy="66" r="18" fill="#18D173"/>
