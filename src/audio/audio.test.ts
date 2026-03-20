@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mapParam } from './voices';
+import { mapLeadSemitoneOffset, mapParam } from './voices';
 
 describe('Voice parameter mapping', () => {
   it('maps fader 0.0 to min values', () => {
@@ -20,6 +20,25 @@ describe('Voice parameter mapping', () => {
 
   it('interpolates linearly in upper half', () => {
     expect(mapParam(0.75, [80, 150, 250])).toBe(200);
+  });
+});
+
+describe('Lead semitone mapping', () => {
+  it('maps fader bottom to -12 semitones', () => {
+    expect(mapLeadSemitoneOffset(0)).toBe(-12);
+  });
+
+  it('maps fader center to original pitch (0 semitones)', () => {
+    expect(mapLeadSemitoneOffset(0.5)).toBe(0);
+  });
+
+  it('maps fader top to +12 semitones', () => {
+    expect(mapLeadSemitoneOffset(1)).toBe(12);
+  });
+
+  it('quantizes quarter points to chromatic intervals', () => {
+    expect(mapLeadSemitoneOffset(0.25)).toBe(-6);
+    expect(mapLeadSemitoneOffset(0.75)).toBe(6);
   });
 });
 
