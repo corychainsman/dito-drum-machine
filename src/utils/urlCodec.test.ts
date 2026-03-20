@@ -20,18 +20,18 @@ describe('URL Codec round-trip', () => {
 
   it('round-trips all-on pattern', () => {
     const allOn: Pattern = Array(4).fill(Array(8).fill(true)) as Pattern;
-    const state = { pattern: allOn, faders: [1,1,1,1] as Faders, bpm: 200 } as AppState;
+    const state = { pattern: allOn, faders: [1,1,1,1] as Faders, bpm: 220 } as AppState;
     const url = stateToURL(state, DEFAULT_LAYOUT);
-    expect(url).toBe('?p=ffffffff&f=ffff&t=200');
+    expect(url).toBe('?p=ffffffff&f=ffff&t=220');
     const parsed = urlToState(url);
     expect(parsed!.pattern!.every(row => row.every(Boolean))).toBe(true);
   });
 
   it('round-trips all-off pattern', () => {
     const allOff: Pattern = Array(4).fill(Array(8).fill(false)) as Pattern;
-    const state = { pattern: allOff, faders: [0,0,0,0] as Faders, bpm: 40 } as AppState;
+    const state = { pattern: allOff, faders: [0,0,0,0] as Faders, bpm: 25 } as AppState;
     const url = stateToURL(state, DEFAULT_LAYOUT);
-    expect(url).toBe('?p=00000000&f=0000&t=40');
+    expect(url).toBe('?p=00000000&f=0000&t=25');
   });
 
   it('rejects malformed URLs', () => {
@@ -44,6 +44,7 @@ describe('URL Codec round-trip', () => {
 
   it('rejects tempo values containing non-digit suffixes', () => {
     expect(urlToState('?p=00000000&f=0000&t=100abc')).toBeNull();
+    expect(urlToState('?p=00000000&f=0000&t=100.5')).toBeNull();
   });
 
   it('encodes default pattern to expected hex', () => {
