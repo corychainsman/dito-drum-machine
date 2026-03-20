@@ -1,5 +1,13 @@
-import { AppState, Action, Pattern, PatternRow, Faders } from '../types';
-import { NUM_RINGS, NUM_STEPS, RANDOM_PROBABILITIES, MIN_BPM, MAX_BPM, DEFAULT_BPM } from '../constants';
+import { AppState, Action, Pattern, PatternRow, Faders, StepSoundRow, StepSounds } from '../types';
+import {
+  NUM_RINGS,
+  NUM_STEPS,
+  RANDOM_PROBABILITIES,
+  MIN_BPM,
+  MAX_BPM,
+  DEFAULT_BPM,
+  SOLO_SOUND_COUNT,
+} from '../constants';
 import { urlToState } from './urlCodec';
 
 export function createDefaultPattern(): Pattern {
@@ -17,6 +25,7 @@ export function getInitialState(): AppState {
   const fromUrl = urlToState(window.location.search);
   return {
     pattern: fromUrl?.pattern ?? createDefaultPattern(),
+    stepSounds: fromUrl?.stepSounds ?? createDefaultStepSounds(),
     faders: fromUrl?.faders ?? [0.5, 0.5, 0.5, 0.5] as Faders,
     bpm: fromUrl?.bpm ?? DEFAULT_BPM,
     transport: 'uninitialized',
@@ -25,15 +34,34 @@ export function getInitialState(): AppState {
   };
 }
 
+export function createDefaultStepSounds(): StepSounds {
+  return Array.from({ length: NUM_RINGS }, () =>
+    Array.from({ length: NUM_STEPS }, () => 0) as StepSoundRow
+  ) as StepSounds;
+}
+
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'TOGGLE_PAD': {
+      const nextActive = !state.pattern[action.ring][action.step];
       const newPattern = state.pattern.map((row, r) =>
         r === action.ring
-          ? row.map((v, s) => (s === action.step ? !v : v)) as PatternRow
+          ? row.map((v, s) => (s === action.step ? nextActive : v)) as PatternRow
           : row
       ) as Pattern;
-      return { ...state, pattern: newPattern };
+
+      const newStepSounds = state.stepSounds.map((row, r) =>
+        r === action.ring
+          ? row.map((value, s) => {
+              if (s !== action.step) return value;
+              if (!nextActive) return 0;
+              const requested = action.soundIndex ?? 0;
+              return ((Math.round(requested) % SOLO_SOUND_COUNT) + SOLO_SOUND_COUNT) % SOLO_SOUND_COUNT;
+            }) as StepSoundRow
+          : row
+      ) as StepSounds;
+
+      return { ...state, pattern: newPattern, stepSounds: newStepSounds };
     }
 
     case 'SET_FADER': {
@@ -58,7 +86,8 @@ export function reducer(state: AppState, action: Action): AppState {
         }
         return row;
       }) as Pattern;
-      return { ...state, pattern: newPattern };
+      const newStepSounds = createDefaultStepSounds();
+      return { ...state, pattern: newPattern, stepSounds: newStepSounds };
     }
 
     case 'PLAY':
@@ -77,6 +106,7 @@ export function reducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         ...(action.state.pattern && { pattern: action.state.pattern }),
+        ...(action.state.stepSounds && { stepSounds: action.state.stepSounds }),
         ...(action.state.faders && { faders: action.state.faders }),
         ...(action.state.bpm !== undefined && { bpm: action.state.bpm }),
       };

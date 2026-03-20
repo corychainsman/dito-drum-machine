@@ -21,6 +21,7 @@ export function useAudioEngine(state: AppState, dispatch: React.Dispatch<{ type:
         engine.start(
           () => stateRef.current.bpm,
           () => stateRef.current.pattern,
+          () => stateRef.current.stepSounds,
           () => stateRef.current.faders,
           () => stateRef.current.repeatActive,
           (_step: number) => dispatch({ type: 'ADVANCE_STEP' })
