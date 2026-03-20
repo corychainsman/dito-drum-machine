@@ -30,7 +30,10 @@ export function App() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const isSpace = event.code === 'Space' || event.key === ' ' || event.key === 'Spacebar';
-      if (!isSpace) return;
+      const isArrowUp = event.key === 'ArrowUp';
+      const isArrowDown = event.key === 'ArrowDown';
+      const isBpmKey = isArrowUp || isArrowDown;
+      if (!isSpace && !isBpmKey) return;
 
       const target = event.target as HTMLElement | null;
       const isEditableTarget =
@@ -41,9 +44,16 @@ export function App() {
           target.isContentEditable);
       if (isEditableTarget) return;
 
+      if (isBpmKey) {
+        event.preventDefault();
+        const step = event.shiftKey || event.altKey || event.ctrlKey ? 1 : 10;
+        const direction = isArrowUp ? 1 : -1;
+        dispatch({ type: 'SET_BPM', bpm: state.bpm + direction * step });
+        return;
+      }
+
       event.preventDefault();
       if (event.repeat) return;
-
       if (state.transport === 'playing') {
         dispatch({ type: 'STOP' });
       } else {
@@ -55,7 +65,7 @@ export function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch, handleFirstInteraction, state.transport]);
+  }, [dispatch, handleFirstInteraction, state.bpm, state.transport]);
 
   return (
     <div className="app-container">

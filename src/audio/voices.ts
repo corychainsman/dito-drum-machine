@@ -14,6 +14,11 @@ export function mapParam(fader: number, range: readonly [number, number, number]
   }
 }
 
+export function mapLeadSemitoneOffset(fader: number): number {
+  const clamped = Math.max(0, Math.min(1, fader));
+  return Math.round((clamped - 0.5) * 24);
+}
+
 // ─── KICK ─────────────────────────────────────────────────────────
 export function triggerKick(
   ctx: AudioContext, time: number, fader: number
@@ -153,20 +158,20 @@ export function triggerLead(
   const notes = [220, 261.63, 329.63, 392.0, 523.25] as const;
   const waves: OscillatorType[] = ['sine', 'triangle', 'square', 'sawtooth', 'triangle'];
   const index = ((Math.round(variant) % notes.length) + notes.length) % notes.length;
-  const detune = mapParam(fader, [-20, 0, 20]);
-  const decay = mapParam(fader, [0.08, 0.18, 0.32]);
-  const peak = mapParam(fader, [0.12, 0.2, 0.28]);
+  const semitoneOffset = mapLeadSemitoneOffset(fader);
+  const frequency = notes[index] * Math.pow(2, semitoneOffset / 12);
+  const decay = 0.18;
+  const peak = 0.2;
 
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   const filter = ctx.createBiquadFilter();
 
   osc.type = waves[index];
-  osc.frequency.setValueAtTime(notes[index], time);
-  osc.detune.setValueAtTime(detune, time);
+  osc.frequency.setValueAtTime(frequency, time);
 
   filter.type = 'lowpass';
-  filter.frequency.setValueAtTime(mapParam(fader, [900, 1800, 3600]), time);
+  filter.frequency.setValueAtTime(1800, time);
   filter.Q.setValueAtTime(0.7, time);
 
   gain.gain.setValueAtTime(peak, time);

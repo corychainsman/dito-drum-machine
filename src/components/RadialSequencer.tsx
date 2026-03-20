@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Pattern, Action, Transport, Faders, LayoutParams } from '../types';
 import { NUM_RINGS, NUM_STEPS, MIN_BPM, MAX_BPM, DEFAULT_LAYOUT, RING_COLORS } from '../constants';
+import { mapLeadSemitoneOffset } from '../audio/voices';
 import { CenterControl } from './CenterControl';
 import ditoFaceplateRaw from '../assets/dito-v1.svg?raw';
 
@@ -50,6 +51,7 @@ const FADER_RANGE = 30;
 const SLOT_ARROW_OFFSET = 32;
 const SLOT_ARROW_RADIUS = 10;
 const SOLO_SOUND_COUNT = 5;
+const LEAD_SLOT_INDEX = 3;
 const SOUND_SLOTS: SoundSlot[] = [
   {
     button: { x: 96.6, y: 95 },
@@ -167,6 +169,7 @@ export function RadialSequencer({
   const faceplateRef = useRef<SVGGElement>(null);
   const thumbBaseTransforms = useRef<string[]>([]);
   const tempoDragRef = useRef<TempoDragState | null>(null);
+  const leadPreviewSemitoneRef = useRef<number | null>(null);
 
   const stepStartDeg = STEP_START_IN_SVG + (layout.stepsStart - DEFAULT_LAYOUT.stepsStart);
   const stepGapDeg = layout.stepsGap;
@@ -263,7 +266,18 @@ export function RadialSequencer({
     if (navigator.vibrate) navigator.vibrate(8);
   };
 
-  const updateFaderFromPointer = (e: React.PointerEvent<SVGGElement>, slotIndex: number) => {
+  const previewLeadPitchIfNeeded = (slotIndex: number, fader: number) => {
+    if (slotIndex !== LEAD_SLOT_INDEX) return;
+
+    const semitone = mapLeadSemitoneOffset(fader);
+    if (leadPreviewSemitoneRef.current === semitone) return;
+    leadPreviewSemitoneRef.current = semitone;
+
+    const soundIndex = slotSoundIndices[slotIndex];
+    void onSoloTrigger?.(slotIndex, soundIndex, fader);
+  };
+
+  const updateFaderFromPointer = (e: React.PointerEvent<SVGGElement>, slotIndex: number): number => {
     const node = SOUND_SLOTS[slotIndex].slider;
     const ring = slotIndex;
     const point = getSvgPoint(e);
@@ -272,23 +286,27 @@ export function RadialSequencer({
     const projected = dx * node.axisX + dy * node.axisY;
     const normalized = clamp((projected + FADER_RANGE / 2) / FADER_RANGE, 0, 1);
     dispatch({ type: 'SET_FADER', ring, value: normalized });
+    return normalized;
   };
 
   const handleFaderDown = (e: React.PointerEvent<SVGGElement>, slotIndex: number) => {
     onFirstInteraction?.();
     e.currentTarget.setPointerCapture(e.pointerId);
-    updateFaderFromPointer(e, slotIndex);
+    const normalized = updateFaderFromPointer(e, slotIndex);
+    previewLeadPitchIfNeeded(slotIndex, normalized);
   };
 
   const handleFaderMove = (e: React.PointerEvent<SVGGElement>, slotIndex: number) => {
     if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
-    updateFaderFromPointer(e, slotIndex);
+    const normalized = updateFaderFromPointer(e, slotIndex);
+    previewLeadPitchIfNeeded(slotIndex, normalized);
   };
 
   const handleFaderUp = (e: React.PointerEvent<SVGGElement>) => {
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
+    leadPreviewSemitoneRef.current = null;
   };
 
   useEffect(() => {
