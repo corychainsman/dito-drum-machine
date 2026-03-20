@@ -31,6 +31,12 @@ interface SoundSlot {
   sliderElement: number;
 }
 
+interface TempoDragState {
+  pointerId: number;
+  startAxisProjection: number;
+  startAngleDeg: number;
+}
+
 const SVG_SIZE = 425;
 const SVG_HALF = SVG_SIZE / 2;
 
@@ -68,8 +74,11 @@ const FACEPLATE_INNER = ditoFaceplateRaw
   .replace(/<\/svg>\s*$/, '');
 
 const RANDOM_POS = { x: 213, y: 66 };
-const TEMPO_UP_POS = { x: 359, y: 212 };
-const TEMPO_DOWN_POS = { x: 66, y: 212 };
+const TEMPO_KNOB_CENTER = { x: 302, y: 212 };
+const TEMPO_KNOB_MIN_DEG = -180;
+const TEMPO_KNOB_MAX_DEG = 180;
+const TEMPO_KNOB_CENTER_BPM = 97.5;
+const TEMPO_DRAG_DEGREES_PER_UNIT = 1;
 const REPEAT_POS = { x: 213, y: 359 };
 
 function toRad(deg: number) {
@@ -78,6 +87,36 @@ function toRad(deg: number) {
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
+}
+
+function bpmToTempoAngle(bpm: number) {
+  const clampedBpm = clamp(bpm, MIN_BPM, MAX_BPM);
+  if (clampedBpm <= TEMPO_KNOB_CENTER_BPM) {
+    const ratio = (clampedBpm - MIN_BPM) / (TEMPO_KNOB_CENTER_BPM - MIN_BPM);
+    return TEMPO_KNOB_MIN_DEG + ratio * (0 - TEMPO_KNOB_MIN_DEG);
+  }
+  const ratio = (clampedBpm - TEMPO_KNOB_CENTER_BPM) / (MAX_BPM - TEMPO_KNOB_CENTER_BPM);
+  return ratio * TEMPO_KNOB_MAX_DEG;
+}
+
+function tempoAngleToBpm(angleDeg: number) {
+  const clampedAngle = clamp(angleDeg, TEMPO_KNOB_MIN_DEG, TEMPO_KNOB_MAX_DEG);
+  if (clampedAngle <= 0) {
+    const ratio = (clampedAngle - TEMPO_KNOB_MIN_DEG) / (0 - TEMPO_KNOB_MIN_DEG);
+    return MIN_BPM + ratio * (TEMPO_KNOB_CENTER_BPM - MIN_BPM);
+  }
+  const ratio = clampedAngle / TEMPO_KNOB_MAX_DEG;
+  return TEMPO_KNOB_CENTER_BPM + ratio * (MAX_BPM - TEMPO_KNOB_CENTER_BPM);
+}
+
+function formatTempo(bpm: number) {
+  return String(Math.round(bpm));
+}
+
+function projectToTempoAxis(point: Point) {
+  const dx = point.x - TEMPO_KNOB_CENTER.x;
+  const dy = point.y - TEMPO_KNOB_CENTER.y;
+  return (dx - dy) / Math.SQRT2;
 }
 
 function getSvgPoint<T extends SVGElement>(e: React.PointerEvent<T>): Point {
@@ -106,6 +145,7 @@ export function RadialSequencer({
   const [slotVoices, setSlotVoices] = useState<[number, number, number, number]>(DEFAULT_SLOT_SOUNDS);
   const faceplateRef = useRef<SVGGElement>(null);
   const thumbBaseTransforms = useRef<string[]>([]);
+  const tempoDragRef = useRef<TempoDragState | null>(null);
 
   const stepStartDeg = STEP_START_IN_SVG + (layout.stepsStart - DEFAULT_LAYOUT.stepsStart);
   const stepGapDeg = layout.stepsGap;
@@ -133,9 +173,40 @@ export function RadialSequencer({
     handleStepPress(ring, step);
   };
 
-  const handleTempoChange = (delta: number) => {
+  const handleTempoKnobDown = (e: React.PointerEvent<SVGGElement>) => {
     onFirstInteraction?.();
-    dispatch({ type: 'SET_BPM', bpm: clamp(bpm + delta, MIN_BPM, MAX_BPM) });
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const point = getSvgPoint(e);
+    tempoDragRef.current = {
+      pointerId: e.pointerId,
+      startAxisProjection: projectToTempoAxis(point),
+      startAngleDeg: bpmToTempoAngle(bpm),
+    };
+  };
+
+  const handleTempoKnobMove = (e: React.PointerEvent<SVGGElement>) => {
+    const drag = tempoDragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId || !e.currentTarget.hasPointerCapture(e.pointerId)) return;
+
+    const point = getSvgPoint(e);
+    const axisDelta = projectToTempoAxis(point) - drag.startAxisProjection;
+    const nextAngle = clamp(
+      drag.startAngleDeg + axisDelta * TEMPO_DRAG_DEGREES_PER_UNIT,
+      TEMPO_KNOB_MIN_DEG,
+      TEMPO_KNOB_MAX_DEG
+    );
+    const nextBpm = Math.round(tempoAngleToBpm(nextAngle));
+    if (nextBpm === bpm) return;
+    dispatch({ type: 'SET_BPM', bpm: nextBpm });
+  };
+
+  const handleTempoKnobUp = (e: React.PointerEvent<SVGGElement>) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    if (tempoDragRef.current?.pointerId === e.pointerId) {
+      tempoDragRef.current = null;
+    }
   };
 
   const handleRandomize = () => {
@@ -250,6 +321,8 @@ export function RadialSequencer({
     }
   }, [currentStep, isPlaying, pattern, stepGapDeg, stepRadii, stepStartDeg]);
 
+  const tempoAngleDeg = bpmToTempoAngle(bpm);
+
   return (
     <div className="board-shell" data-testid="board-shell">
       <svg
@@ -310,24 +383,43 @@ export function RadialSequencer({
         </g>
 
         <g data-testid="tempo-control">
-          <g onPointerDown={() => handleTempoChange(10)} style={{ cursor: 'pointer' }}>
-            <circle cx={TEMPO_UP_POS.x} cy={TEMPO_UP_POS.y} r="22" fill="transparent" />
-          </g>
-          <g onPointerDown={() => handleTempoChange(-10)} style={{ cursor: 'pointer' }}>
-            <circle cx={TEMPO_DOWN_POS.x} cy={TEMPO_DOWN_POS.y} r="22" fill="transparent" />
+          <g
+            data-testid="tempo-knob"
+            onPointerDown={handleTempoKnobDown}
+            onPointerMove={handleTempoKnobMove}
+            onPointerUp={handleTempoKnobUp}
+            onPointerCancel={handleTempoKnobUp}
+            style={{ cursor: 'grab' }}
+          >
+            <circle cx={TEMPO_KNOB_CENTER.x} cy={TEMPO_KNOB_CENTER.y} r="8" fill="#050505" />
+            <line
+              x1={TEMPO_KNOB_CENTER.x - 7}
+              y1={TEMPO_KNOB_CENTER.y}
+              x2={TEMPO_KNOB_CENTER.x}
+              y2={TEMPO_KNOB_CENTER.y}
+              stroke="#D9D9D9"
+              strokeWidth="2"
+              strokeLinecap="round"
+              transform={`rotate(${tempoAngleDeg} ${TEMPO_KNOB_CENTER.x} ${TEMPO_KNOB_CENTER.y})`}
+              style={{ pointerEvents: 'none' }}
+            />
           </g>
           <text
-            x={TEMPO_UP_POS.x}
-            y={TEMPO_UP_POS.y + 33}
-            textAnchor="middle"
-            fontSize="12"
-            fontWeight="600"
+            data-testid="tempo-readout"
+            x={TEMPO_KNOB_CENTER.x - 27}
+            y={TEMPO_KNOB_CENTER.y - 2}
+            textAnchor="end"
+            dominantBaseline="middle"
+            fontSize="8"
+            fontWeight="700"
             fill="#101010"
           >
-            {bpm}
+            <tspan dy="0"dx="16"textAnchor="end">
+            {formatTempo(bpm)}
+            </tspan>
+            <tspan dx="-18" dy="1em" textAnchor="end">bpm</tspan>
           </text>
         </g>
-
         <CenterControl
           transport={transport}
           dispatch={dispatch}

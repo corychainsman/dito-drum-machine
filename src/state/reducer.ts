@@ -43,7 +43,7 @@ export function reducer(state: AppState, action: Action): AppState {
     }
 
     case 'SET_BPM': {
-      const bpm = Math.max(MIN_BPM, Math.min(MAX_BPM, action.bpm));
+      const bpm = Math.round(Math.max(MIN_BPM, Math.min(MAX_BPM, action.bpm)));
       return { ...state, bpm };
     }
 
