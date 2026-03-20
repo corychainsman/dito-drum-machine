@@ -1,19 +1,22 @@
 import { test, expect } from '@playwright/test';
 
+const NUM_RINGS = 4;
+const NUM_STEPS = 8;
+
 test.describe('Pad Interaction', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
-  test('renders exactly 40 pad elements', async ({ page }) => {
+  test('renders exactly 32 pad elements', async ({ page }) => {
     const pads = page.locator('[data-testid^="pad-"]');
-    await expect(pads).toHaveCount(40);
+    await expect(pads).toHaveCount(NUM_RINGS * NUM_STEPS);
   });
 
   test('each pad has correct data attributes', async ({ page }) => {
-    // Check pad-0-0 through pad-4-7 exist
-    for (let ring = 0; ring < 5; ring++) {
-      for (let step = 0; step < 8; step++) {
+    // Check pad-0-0 through pad-3-7 exist
+    for (let ring = 0; ring < NUM_RINGS; ring++) {
+      for (let step = 0; step < NUM_STEPS; step++) {
         await expect(page.locator(`[data-testid="pad-${ring}-${step}"]`)).toBeVisible();
       }
     }

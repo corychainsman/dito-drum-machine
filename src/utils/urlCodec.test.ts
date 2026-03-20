@@ -19,31 +19,31 @@ describe('URL Codec round-trip', () => {
   });
 
   it('round-trips all-on pattern', () => {
-    const allOn: Pattern = Array(5).fill(Array(8).fill(true)) as Pattern;
-    const state = { pattern: allOn, faders: [1,1,1,1,1] as Faders, bpm: 200 } as AppState;
+    const allOn: Pattern = Array(4).fill(Array(8).fill(true)) as Pattern;
+    const state = { pattern: allOn, faders: [1,1,1,1] as Faders, bpm: 200 } as AppState;
     const url = stateToURL(state, DEFAULT_LAYOUT);
-    expect(url).toBe('?p=ffffffffff&f=fffff&t=200');
+    expect(url).toBe('?p=ffffffff&f=ffff&t=200');
     const parsed = urlToState(url);
     expect(parsed!.pattern!.every(row => row.every(Boolean))).toBe(true);
   });
 
   it('round-trips all-off pattern', () => {
-    const allOff: Pattern = Array(5).fill(Array(8).fill(false)) as Pattern;
-    const state = { pattern: allOff, faders: [0,0,0,0,0] as Faders, bpm: 40 } as AppState;
+    const allOff: Pattern = Array(4).fill(Array(8).fill(false)) as Pattern;
+    const state = { pattern: allOff, faders: [0,0,0,0] as Faders, bpm: 40 } as AppState;
     const url = stateToURL(state, DEFAULT_LAYOUT);
-    expect(url).toBe('?p=0000000000&f=00000&t=40');
+    expect(url).toBe('?p=00000000&f=0000&t=40');
   });
 
   it('rejects malformed URLs', () => {
-    expect(urlToState('?p=ZZ&f=00000&t=100')).toBeNull(); // p too short
-    expect(urlToState('?p=0000000000&f=000&t=100')).toBeNull(); // f too short
-    expect(urlToState('?p=0000000000&f=00000&t=999')).toBeNull(); // bpm out of range
+    expect(urlToState('?p=ZZ&f=0000&t=100')).toBeNull(); // p too short
+    expect(urlToState('?p=00000000&f=000&t=100')).toBeNull(); // f too short
+    expect(urlToState('?p=00000000&f=0000&t=999')).toBeNull(); // bpm out of range
     expect(urlToState('')).toBeNull(); // empty
     expect(urlToState('?garbage=true')).toBeNull(); // wrong params
   });
 
   it('rejects tempo values containing non-digit suffixes', () => {
-    expect(urlToState('?p=0000000000&f=00000&t=100abc')).toBeNull();
+    expect(urlToState('?p=00000000&f=0000&t=100abc')).toBeNull();
   });
 
   it('encodes default pattern to expected hex', () => {
@@ -51,9 +51,8 @@ describe('URL Codec round-trip', () => {
     // snare: 2,6 = bits 2,6 = 0b01000100 = 0x44
     // hihat: all = 0xFF
     // clap: none = 0x00
-    // tom: none = 0x00
     const state = { ...getInitialState(), transport: 'stopped' as const };
     const url = stateToURL(state, DEFAULT_LAYOUT);
-    expect(url).toContain('p=5544ff0000');
+    expect(url).toContain('p=5544ff00');
   });
 });

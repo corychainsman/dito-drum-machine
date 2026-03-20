@@ -5,7 +5,7 @@ import {
   REPEAT_SUBDIVISION,
 } from '../constants';
 import {
-  triggerKick, triggerSnare, triggerHihat, triggerClap, triggerTom,
+  triggerKick, triggerSnare, triggerHihat, triggerClap,
 } from './voices';
 import { generateSamples } from './sampleGeneration';
 
@@ -41,10 +41,10 @@ export class AudioEngine {
     }
     // Load samples in the background so start() can fire as soon as ctx is
     // ready. Kick/snare/hihat are pure synthesis and need no sample buffers;
-    // clap/tom will be silent until buffers arrive (or if generation fails).
+    // clap will be silent until buffers arrive (or if generation fails).
     generateSamples(this.ctx.sampleRate)
       .then(buffers => { this.sampleBuffers = buffers; })
-      .catch(() => { /* clap/tom silent; core drums still work */ });
+      .catch(() => { /* clap silent; core drums still work */ });
     this.setupVisibilityHandling();
   }
 
@@ -98,7 +98,6 @@ export class AudioEngine {
       case 1: triggerSnare(this.ctx, time, fader); break;
       case 2: triggerHihat(this.ctx, time, fader); break;
       case 3: triggerClap(this.ctx, time, fader, this.sampleBuffers); break;
-      case 4: triggerTom(this.ctx, time, fader, this.sampleBuffers); break;
     }
   }
 
