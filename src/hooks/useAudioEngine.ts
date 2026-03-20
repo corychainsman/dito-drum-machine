@@ -1,8 +1,8 @@
 import { useRef, useEffect, useCallback } from 'react';
-import { AppState } from '../types';
+import { Action, AppState } from '../types';
 import { AudioEngine } from '../audio/AudioEngine';
 
-export function useAudioEngine(state: AppState, dispatch: React.Dispatch<{ type: 'ADVANCE_STEP' }>) {
+export function useAudioEngine(state: AppState, dispatch: React.Dispatch<Action>) {
   const engineRef = useRef<AudioEngine>(new AudioEngine());
   const stateRef = useRef(state);
 
@@ -24,7 +24,7 @@ export function useAudioEngine(state: AppState, dispatch: React.Dispatch<{ type:
           () => stateRef.current.stepSounds,
           () => stateRef.current.faders,
           () => stateRef.current.repeatActive,
-          (_step: number) => dispatch({ type: 'ADVANCE_STEP' })
+          (step: number) => dispatch({ type: 'SET_CURRENT_STEP', step })
         );
       }).catch(console.error);
     } else if (state.transport === 'stopped') {

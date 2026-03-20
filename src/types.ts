@@ -28,6 +28,7 @@ export type Action =
   | { type: 'PLAY' }
   | { type: 'STOP' }
   | { type: 'SET_REPEAT'; active: boolean }
+  | { type: 'SET_CURRENT_STEP'; step: number }
   | { type: 'ADVANCE_STEP' }
   | { type: 'HYDRATE'; state: Partial<AppState> };
 

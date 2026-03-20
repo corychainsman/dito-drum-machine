@@ -69,6 +69,14 @@ describe('Reducer', () => {
     expect(state.transport).toBe('stopped');
   });
 
+  it('SET_CURRENT_STEP sets step directly and wraps', () => {
+    let state = reducer(getInitialState(), { type: 'SET_CURRENT_STEP', step: 3 });
+    expect(state.currentStep).toBe(3);
+
+    state = reducer(state, { type: 'SET_CURRENT_STEP', step: 10 });
+    expect(state.currentStep).toBe(2);
+  });
+
   it('SET_FADER clamps to 0–1', () => {
     const state = reducer(getInitialState(), { type: 'SET_FADER', ring: 0, value: 1.5 });
     expect(state.faders[0]).toBe(1.0);

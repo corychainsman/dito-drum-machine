@@ -99,6 +99,12 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'SET_REPEAT':
       return { ...state, repeatActive: action.active };
 
+    case 'SET_CURRENT_STEP':
+      return {
+        ...state,
+        currentStep: ((Math.round(action.step) % NUM_STEPS) + NUM_STEPS) % NUM_STEPS,
+      };
+
     case 'ADVANCE_STEP':
       return { ...state, currentStep: (state.currentStep + 1) % NUM_STEPS };
 
