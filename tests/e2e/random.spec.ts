@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+const NUM_RINGS = 4;
+const NUM_STEPS = 8;
+
 test.describe('Random', () => {
   test('randomize changes the pattern', async ({ page }) => {
     await page.goto('/');
@@ -26,9 +29,9 @@ test.describe('Random', () => {
       await page.locator('[data-testid="random-button"]').click();
       await page.waitForTimeout(50);
 
-      for (let ring = 0; ring < 5; ring++) {
+      for (let ring = 0; ring < NUM_RINGS; ring++) {
         let hasArmed = false;
-        for (let step = 0; step < 8; step++) {
+        for (let step = 0; step < NUM_STEPS; step++) {
           const fill = await page.locator(`[data-testid="pad-${ring}-${step}"]`).getAttribute('fill');
           if (fill !== '#3A3A3A') hasArmed = true;
         }

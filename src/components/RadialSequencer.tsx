@@ -34,12 +34,10 @@ interface SoundSlot {
 const SVG_SIZE = 425;
 const SVG_HALF = SVG_SIZE / 2;
 
-// Derived from dito-v1.svg "steps_inner" ring distances (plus one extra inner ring for track 5)
-const STEP_BASE_RADII = [184, 139, 94, 49, 25];
+// Derived from dito-v1.svg step-circle ring distances
+const STEP_BASE_RADII = [184, 139, 94, 49];
 const STEP_OFF_COLOR = '#D2DBE4';
 const STEP_START_IN_SVG = 247.5;
-const STEP_TOUCH_RADIUS = 17;
-const STEP_VISUAL_RADIUS = 12;
 
 const FADER_RANGE = 30;
 const SOUND_SLOTS: SoundSlot[] = [
@@ -64,7 +62,7 @@ const SOUND_SLOTS: SoundSlot[] = [
     sliderElement: 3,
   },
 ];
-const DEFAULT_SLOT_SOUNDS: [number, number, number, number] = [0, 1, 3, 4];
+const DEFAULT_SLOT_SOUNDS: [number, number, number, number] = [0, 1, 2, 3];
 const FACEPLATE_INNER = ditoFaceplateRaw
   .replace(/^<svg[^>]*>/, '')
   .replace(/<\/svg>\s*$/, '');
@@ -118,6 +116,21 @@ export function RadialSequencer({
     onFirstInteraction?.();
     dispatch({ type: 'TOGGLE_PAD', ring, step });
     if (navigator.vibrate) navigator.vibrate(10);
+  };
+
+  const handleSvgPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    const target = e.target as SVGElement | null;
+    if (!target) return;
+
+    const ringAttr = target.getAttribute('data-ring');
+    const stepAttr = target.getAttribute('data-step');
+    if (ringAttr == null || stepAttr == null) return;
+
+    const ring = Number(ringAttr);
+    const step = Number(stepAttr);
+    if (Number.isNaN(ring) || Number.isNaN(step)) return;
+
+    handleStepPress(ring, step);
   };
 
   const handleTempoChange = (delta: number) => {
@@ -211,6 +224,32 @@ export function RadialSequencer({
     });
   }, [faders, slotVoices]);
 
+  useEffect(() => {
+    const faceplate = faceplateRef.current;
+    if (!faceplate) return;
+
+    for (let ring = 0; ring < NUM_RINGS; ring++) {
+      for (let step = 0; step < NUM_STEPS; step++) {
+        const node = faceplate.querySelector<SVGCircleElement>(`#step-${ring}-${step}`);
+        if (!node) continue;
+
+        const angleDeg = stepStartDeg + step * stepGapDeg;
+        const ringRadius = stepRadii[ring] ?? stepRadii[stepRadii.length - 1];
+        const x = SVG_HALF + Math.cos(toRad(angleDeg)) * ringRadius;
+        const y = SVG_HALF + Math.sin(toRad(angleDeg)) * ringRadius;
+        const active = pattern[ring][step];
+        const isCurrent = isPlaying && currentStep === step;
+
+        node.setAttribute('cx', x.toFixed(3));
+        node.setAttribute('cy', y.toFixed(3));
+        node.setAttribute('fill', active ? RING_COLORS[ring] : STEP_OFF_COLOR);
+        node.setAttribute('stroke', isCurrent ? '#161616' : '#9EA8B2');
+        node.setAttribute('stroke-width', isCurrent ? '3' : '1.5');
+        node.style.cursor = 'pointer';
+      }
+    }
+  }, [currentStep, isPlaying, pattern, stepGapDeg, stepRadii, stepStartDeg]);
+
   return (
     <div className="board-shell" data-testid="board-shell">
       <svg
@@ -221,44 +260,9 @@ export function RadialSequencer({
         style={{ display: 'block', touchAction: 'none' }}
         role="grid"
         aria-label="Drum pattern editor"
+        onPointerDown={handleSvgPointerDown}
       >
         <g ref={faceplateRef} dangerouslySetInnerHTML={{ __html: FACEPLATE_INNER }} />
-
-        {Array.from({ length: NUM_RINGS }, (_, ring) =>
-          Array.from({ length: NUM_STEPS }, (_, step) => {
-            const angleDeg = stepStartDeg + step * stepGapDeg;
-            const ringRadius = stepRadii[ring] ?? stepRadii[stepRadii.length - 1];
-            const x = SVG_HALF + Math.cos(toRad(angleDeg)) * ringRadius;
-            const y = SVG_HALF + Math.sin(toRad(angleDeg)) * ringRadius;
-            const active = pattern[ring][step];
-            const isCurrent = isPlaying && currentStep === step;
-
-            return (
-              <g key={`${ring}-${step}`}>
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={STEP_TOUCH_RADIUS}
-                  fill="transparent"
-                  onPointerDown={() => handleStepPress(ring, step)}
-                  style={{ cursor: 'pointer' }}
-                  aria-label={`Step ${step + 1}, track ${ring + 1}`}
-                />
-                <circle
-                  data-testid={`pad-${ring}-${step}`}
-                  cx={x}
-                  cy={y}
-                  r={STEP_VISUAL_RADIUS}
-                  onPointerDown={() => handleStepPress(ring, step)}
-                  style={{ cursor: 'pointer' }}
-                  fill={active ? RING_COLORS[ring] : STEP_OFF_COLOR}
-                  stroke={isCurrent ? '#161616' : '#9EA8B2'}
-                  strokeWidth={isCurrent ? 3 : 1.5}
-                />
-              </g>
-            );
-          })
-        )}
 
         <g data-testid="fader-tray">
           {SOUND_SLOTS.map((slot, slotIndex) => {

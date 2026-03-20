@@ -57,32 +57,4 @@ describe.skip('Sample generation (browser-only)', () => {
     expect(buffer.duration).toBeCloseTo(0.3, 1);
   });
 
-  it('generates a tom_attack sample with non-zero audio data', async () => {
-    const sampleRate = 44100;
-    const duration = 0.06;
-    const offCtx = new OfflineAudioContext(1, sampleRate * duration, sampleRate);
-
-    const buf = offCtx.createBuffer(1, sampleRate * duration, sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    const src = offCtx.createBufferSource();
-    src.buffer = buf;
-    const bpf = offCtx.createBiquadFilter();
-    bpf.type = 'bandpass';
-    bpf.frequency.value = 800;
-    bpf.Q.value = 1.0;
-    const gain = offCtx.createGain();
-    gain.gain.setValueAtTime(1.0, 0);
-    gain.gain.exponentialRampToValueAtTime(0.001, duration);
-    src.connect(bpf);
-    bpf.connect(gain);
-    gain.connect(offCtx.destination);
-    src.start(0);
-
-    const buffer = await offCtx.startRendering();
-    const data = buffer.getChannelData(0);
-    const maxAmplitude = Math.max(...Array.from(data).map(Math.abs));
-    expect(maxAmplitude).toBeGreaterThan(0.01);
-    expect(buffer.duration).toBeCloseTo(duration, 2);
-  });
 });

@@ -4,7 +4,7 @@ import type { LayoutParams } from './types';
 export const SVG_SIZE = 400;
 export const SVG_CENTER = SVG_SIZE / 2; // 200
 
-export const NUM_RINGS = 5;
+export const NUM_RINGS = 4;
 export const NUM_STEPS = 8;
 export const STEP_ANGLE_DEG = 360 / NUM_STEPS; // 45
 export const PAD_SUBTEND_DEG = 38; // arc width of each pad in degrees
@@ -17,7 +17,6 @@ export const RING_RADII: [number, number][] = [
   [140, 158], // Ring 1: Snare
   [110, 128], // Ring 2: Hi-hat
   [80, 98],   // Ring 3: Clap
-  [54, 72],   // Ring 4: Tom (innermost — widened for touch target)
 ];
 
 // ─── Colors ───────────────────────────────────────────────────────
@@ -30,10 +29,9 @@ export const RING_COLORS = [
   '#FFD93D', // Snare: warm yellow
   '#6BCB77', // Hi-hat: lime green
   '#4D96FF', // Clap: sky blue
-  '#C77DFF', // Tom: lavender purple
 ] as const;
 
-export const VOICE_NAMES = ['kick', 'snare', 'hihat', 'clap', 'tom'] as const;
+export const VOICE_NAMES = ['kick', 'snare', 'hihat', 'clap'] as const;
 
 // ─── Audio ────────────────────────────────────────────────────────
 export const SCHEDULER_LOOKAHEAD_MS = 25;
@@ -65,15 +63,10 @@ export const VOICE_PARAMS = {
     decay:  [0.05, 0.2, 0.5],    // gain envelope seconds
     filter: [800, 4000, 12000],   // lowpass cutoff Hz
   },
-  tom: {
-    pitch:  [60, 120, 200],   // oscillator Hz
-    decay:  [0.08, 0.25, 0.6],// seconds
-    filter: [200, 1500, 4000],// lowpass cutoff Hz
-  },
 } as const;
 
 // ─── Random pattern probabilities per ring ────────────────────────
-export const RANDOM_PROBABILITIES = [0.30, 0.20, 0.50, 0.15, 0.20];
+export const RANDOM_PROBABILITIES = [0.30, 0.20, 0.50, 0.15];
 
 // ─── Repeat ───────────────────────────────────────────────────────
 export const REPEAT_SUBDIVISION = 4; // 4× speed stutter
@@ -83,9 +76,8 @@ export const REPEAT_SUBDIVISION = 4; // 4× speed stutter
 // Snare: steps 2,6 (backbeat) = 0b01000100 = 0x44
 // Hi-hat: all 8 = 0xFF
 // Clap: empty = 0x00
-// Tom: empty = 0x00
-export const DEFAULT_PATTERN_HEX = '5544FF0000';
-export const DEFAULT_FADERS_HEX = '88888';
+export const DEFAULT_PATTERN_HEX = '5544FF00';
+export const DEFAULT_FADERS_HEX = '8888';
 export const DEFAULT_BPM_VALUE = 100;
 
 // ─── Layout defaults ──────────────────────────────────────────────
@@ -100,7 +92,7 @@ export const DEFAULT_LAYOUT: LayoutParams = {
   stepsRadius: 76,   // outer ring at 152 SVG units (76% of 200)
 
   slidersStart: 202, // approx -158°, matches legacy FADER_ANGLES[0]
-  slidersGap: 72,    // 360° / 5 sliders
+  slidersGap: 72,    // legacy spacing for the 4 visible sliders
   slidersRadius: 37, // 74 SVG units (37% of 200)
 
   buttonsStart: 135, // bottom-left area

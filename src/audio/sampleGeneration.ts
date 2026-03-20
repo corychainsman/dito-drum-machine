@@ -38,34 +38,5 @@ export async function generateSamples(sampleRate: number): Promise<Map<string, A
     samples.set('clap', await offCtx.startRendering());
   }
 
-  // ─── TOM ATTACK: short filtered noise transient ─────────────────
-  {
-    const duration = 0.06;
-    const offCtx = new OfflineAudioContext(1, sampleRate * duration, sampleRate);
-
-    const buf = offCtx.createBuffer(1, sampleRate * duration, sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-
-    const src = offCtx.createBufferSource();
-    src.buffer = buf;
-
-    const bpf = offCtx.createBiquadFilter();
-    bpf.type = 'bandpass';
-    bpf.frequency.value = 800;
-    bpf.Q.value = 1.0;
-
-    const gain = offCtx.createGain();
-    gain.gain.setValueAtTime(1.0, 0);
-    gain.gain.exponentialRampToValueAtTime(0.001, duration);
-
-    src.connect(bpf);
-    bpf.connect(gain);
-    gain.connect(offCtx.destination);
-    src.start(0);
-
-    samples.set('tom_attack', await offCtx.startRendering());
-  }
-
   return samples;
 }
