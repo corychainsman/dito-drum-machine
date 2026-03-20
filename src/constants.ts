@@ -37,8 +37,8 @@ export const VOICE_NAMES = ['kick', 'snare', 'hihat', 'clap'] as const;
 export const SCHEDULER_LOOKAHEAD_MS = 25;
 export const SCHEDULER_AHEAD_S = 0.1;
 export const DEFAULT_BPM = 100;
-export const MIN_BPM = 40;
-export const MAX_BPM = 200;
+export const MIN_BPM = 25;
+export const MAX_BPM = 220;
 export const BPM_STEP = 10; // turtle/rabbit increment
 
 // ─── Voice parameter ranges: [min, default, max] ─────────────────

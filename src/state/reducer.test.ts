@@ -22,9 +22,14 @@ describe('Reducer', () => {
 
   it('SET_BPM clamps to valid range', () => {
     const state = reducer(getInitialState(), { type: 'SET_BPM', bpm: 999 });
-    expect(state.bpm).toBe(200);
+    expect(state.bpm).toBe(220);
     const state2 = reducer(getInitialState(), { type: 'SET_BPM', bpm: 1 });
-    expect(state2.bpm).toBe(40);
+    expect(state2.bpm).toBe(25);
+  });
+
+  it('SET_BPM rounds to integer BPM', () => {
+    const state = reducer(getInitialState(), { type: 'SET_BPM', bpm: 101.6 });
+    expect(state.bpm).toBe(102);
   });
 
   it('STOP resets currentStep and repeatActive', () => {
