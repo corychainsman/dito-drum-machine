@@ -4,12 +4,15 @@ export type VoiceName = typeof VOICE_NAMES[number];
 
 export type PatternRow = [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean];
 export type Pattern = [PatternRow, PatternRow, PatternRow, PatternRow];
+export type StepSoundRow = [number, number, number, number, number, number, number, number];
+export type StepSounds = [StepSoundRow, StepSoundRow, StepSoundRow, StepSoundRow];
 export type Faders = [number, number, number, number]; // each 0.0–1.0
 
 export type Transport = 'uninitialized' | 'stopped' | 'playing';
 
 export interface AppState {
   pattern: Pattern;
+  stepSounds: StepSounds;
   faders: Faders;
   bpm: number;
   transport: Transport;
@@ -18,7 +21,7 @@ export interface AppState {
 }
 
 export type Action =
-  | { type: 'TOGGLE_PAD'; ring: number; step: number }
+  | { type: 'TOGGLE_PAD'; ring: number; step: number; soundIndex?: number }
   | { type: 'SET_FADER'; ring: number; value: number }
   | { type: 'SET_BPM'; bpm: number }
   | { type: 'RANDOMIZE' }

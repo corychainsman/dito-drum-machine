@@ -32,6 +32,7 @@ export const RING_COLORS = [
 ] as const;
 
 export const VOICE_NAMES = ['kick', 'snare', 'hihat', 'clap'] as const;
+export const SOLO_SOUND_COUNT = 5;
 
 // ─── Audio ────────────────────────────────────────────────────────
 export const SCHEDULER_LOOKAHEAD_MS = 25;

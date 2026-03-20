@@ -145,3 +145,36 @@ export function triggerClap(
   gain.connect(ctx.destination);
   source.start(time);
 }
+
+// ─── LEAD ─────────────────────────────────────────────────────────
+export function triggerLead(
+  ctx: AudioContext, time: number, variant: number, fader: number
+): void {
+  const notes = [220, 261.63, 329.63, 392.0, 523.25] as const;
+  const waves: OscillatorType[] = ['sine', 'triangle', 'square', 'sawtooth', 'triangle'];
+  const index = ((Math.round(variant) % notes.length) + notes.length) % notes.length;
+  const detune = mapParam(fader, [-20, 0, 20]);
+  const decay = mapParam(fader, [0.08, 0.18, 0.32]);
+  const peak = mapParam(fader, [0.12, 0.2, 0.28]);
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const filter = ctx.createBiquadFilter();
+
+  osc.type = waves[index];
+  osc.frequency.setValueAtTime(notes[index], time);
+  osc.detune.setValueAtTime(detune, time);
+
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(mapParam(fader, [900, 1800, 3600]), time);
+  filter.Q.setValueAtTime(0.7, time);
+
+  gain.gain.setValueAtTime(peak, time);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
+
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(time);
+  osc.stop(time + decay + 0.02);
+}
