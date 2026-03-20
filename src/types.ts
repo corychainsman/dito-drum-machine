@@ -3,8 +3,8 @@ import { VOICE_NAMES } from './constants';
 export type VoiceName = typeof VOICE_NAMES[number];
 
 export type PatternRow = [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean];
-export type Pattern = [PatternRow, PatternRow, PatternRow, PatternRow, PatternRow];
-export type Faders = [number, number, number, number, number]; // each 0.0–1.0
+export type Pattern = [PatternRow, PatternRow, PatternRow, PatternRow];
+export type Faders = [number, number, number, number]; // each 0.0–1.0
 
 export type Transport = 'uninitialized' | 'stopped' | 'playing';
 

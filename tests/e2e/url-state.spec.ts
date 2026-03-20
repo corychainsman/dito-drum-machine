@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+const NUM_RINGS = 4;
+const NUM_STEPS = 8;
+
 test.describe('URL State', () => {
   test('loads with default pattern when no URL params', async ({ page }) => {
     await page.goto('/');
@@ -12,10 +15,10 @@ test.describe('URL State', () => {
 
   test('hydrates state from URL params', async ({ page }) => {
     // All pads on, all faders max, tempo 180
-    await page.goto('/?p=ffffffffff&f=fffff&t=180');
+    await page.goto('/?p=ffffffff&f=ffff&t=180');
     // Every pad should be armed
-    for (let ring = 0; ring < 5; ring++) {
-      for (let step = 0; step < 8; step++) {
+    for (let ring = 0; ring < NUM_RINGS; ring++) {
+      for (let step = 0; step < NUM_STEPS; step++) {
         const fill = await page.locator(`[data-testid="pad-${ring}-${step}"]`).getAttribute('fill');
         expect(fill).not.toBe('#3A3A3A');
       }

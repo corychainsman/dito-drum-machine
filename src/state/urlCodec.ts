@@ -90,11 +90,11 @@ export function urlToState(search: string): Partial<AppState> | null {
 
   if (!p || !f || !t) return null;
 
-  // Validate pattern: exactly 10 hex chars
-  if (!/^[0-9a-fA-F]{10}$/.test(p)) return null;
+  // Validate pattern: exactly 2 hex chars per ring
+  if (!new RegExp(`^[0-9a-fA-F]{${NUM_RINGS * 2}}$`).test(p)) return null;
 
-  // Validate faders: exactly 5 hex chars
-  if (!/^[0-9a-fA-F]{5}$/.test(f)) return null;
+  // Validate faders: exactly 1 hex char per ring
+  if (!new RegExp(`^[0-9a-fA-F]{${NUM_RINGS}}$`).test(f)) return null;
 
   // Validate tempo
   if (!/^\d+$/.test(t)) return null;
