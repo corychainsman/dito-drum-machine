@@ -11,6 +11,34 @@ describe('Reducer', () => {
     expect(toggled.pattern[1][1]).toBe(state.pattern[1][1]);
   });
 
+  it('TOGGLE_PAD latches step sound when activating', () => {
+    let state = getInitialState();
+    if (state.pattern[0][1]) {
+      state = reducer(state, { type: 'TOGGLE_PAD', ring: 0, step: 1 });
+    }
+
+    const activated = reducer(state, { type: 'TOGGLE_PAD', ring: 0, step: 1, soundIndex: 4 });
+    expect(activated.pattern[0][1]).toBe(true);
+    expect(activated.stepSounds[0][1]).toBe(4);
+  });
+
+  it('TOGGLE_PAD only updates latched sound after deactivate/reactivate', () => {
+    let state = getInitialState();
+    if (state.pattern[1][3]) {
+      state = reducer(state, { type: 'TOGGLE_PAD', ring: 1, step: 3 });
+    }
+
+    const firstActivation = reducer(state, { type: 'TOGGLE_PAD', ring: 1, step: 3, soundIndex: 1 });
+    expect(firstActivation.stepSounds[1][3]).toBe(1);
+
+    const deactivated = reducer(firstActivation, { type: 'TOGGLE_PAD', ring: 1, step: 3 });
+    expect(deactivated.pattern[1][3]).toBe(false);
+
+    const reactivated = reducer(deactivated, { type: 'TOGGLE_PAD', ring: 1, step: 3, soundIndex: 3 });
+    expect(reactivated.pattern[1][3]).toBe(true);
+    expect(reactivated.stepSounds[1][3]).toBe(3);
+  });
+
   it('RANDOMIZE produces at least 1 active step per ring', () => {
     for (let i = 0; i < 100; i++) { // statistical test
       const state = reducer(getInitialState(), { type: 'RANDOMIZE' });

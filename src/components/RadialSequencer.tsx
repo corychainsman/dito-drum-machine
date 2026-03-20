@@ -13,6 +13,7 @@ interface RadialSequencerProps {
   layout: LayoutParams;
   dispatch: React.Dispatch<Action>;
   onFirstInteraction?: () => void;
+  onSoloTrigger?: (slotIndex: number, soundIndex: number, fader: number) => void | Promise<void>;
 }
 
 interface Point {
@@ -46,6 +47,9 @@ const STEP_OFF_COLOR = '#D2DBE4';
 const STEP_START_IN_SVG = 247.5;
 
 const FADER_RANGE = 30;
+const SLOT_ARROW_OFFSET = 32;
+const SLOT_ARROW_RADIUS = 10;
+const SOLO_SOUND_COUNT = 5;
 const SOUND_SLOTS: SoundSlot[] = [
   {
     button: { x: 96.6, y: 95 },
@@ -68,7 +72,7 @@ const SOUND_SLOTS: SoundSlot[] = [
     sliderElement: 3,
   },
 ];
-const DEFAULT_SLOT_SOUNDS: [number, number, number, number] = [0, 1, 2, 3];
+const DEFAULT_SLOT_SOUND_INDICES: [number, number, number, number] = [0, 0, 0, 0];
 const FACEPLATE_INNER = ditoFaceplateRaw
   .replace(/^<svg[^>]*>/, '')
   .replace(/<\/svg>\s*$/, '');
@@ -87,6 +91,22 @@ function toRad(deg: number) {
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
+}
+
+function getSlotArrowPoints(slot: SoundSlot) {
+  const tangentX = -slot.slider.axisY;
+  const tangentY = slot.slider.axisX;
+
+  return {
+    backward: {
+      x: slot.button.x + tangentX * SLOT_ARROW_OFFSET,
+      y: slot.button.y + tangentY * SLOT_ARROW_OFFSET,
+    },
+    forward: {
+      x: slot.button.x - tangentX * SLOT_ARROW_OFFSET,
+      y: slot.button.y - tangentY * SLOT_ARROW_OFFSET,
+    },
+  };
 }
 
 function bpmToTempoAngle(bpm: number) {
@@ -140,9 +160,10 @@ export function RadialSequencer({
   layout,
   dispatch,
   onFirstInteraction,
+  onSoloTrigger,
 }: RadialSequencerProps) {
   const isPlaying = transport === 'playing';
-  const [slotVoices, setSlotVoices] = useState<[number, number, number, number]>(DEFAULT_SLOT_SOUNDS);
+  const [slotSoundIndices, setSlotSoundIndices] = useState<[number, number, number, number]>(DEFAULT_SLOT_SOUND_INDICES);
   const faceplateRef = useRef<SVGGElement>(null);
   const thumbBaseTransforms = useRef<string[]>([]);
   const tempoDragRef = useRef<TempoDragState | null>(null);
@@ -154,7 +175,7 @@ export function RadialSequencer({
 
   const handleStepPress = (ring: number, step: number) => {
     onFirstInteraction?.();
-    dispatch({ type: 'TOGGLE_PAD', ring, step });
+    dispatch({ type: 'TOGGLE_PAD', ring, step, soundIndex: slotSoundIndices[ring] });
     if (navigator.vibrate) navigator.vibrate(10);
   };
 
@@ -225,11 +246,18 @@ export function RadialSequencer({
     dispatch({ type: 'SET_REPEAT', active: false });
   };
 
-  const handleCycleSound = (slotIndex: number) => {
+  const handleSoloButtonPress = (slotIndex: number) => {
     onFirstInteraction?.();
-    setSlotVoices((previous) => {
+    const soundIndex = slotSoundIndices[slotIndex];
+    void onSoloTrigger?.(slotIndex, soundIndex, faders[slotIndex]);
+    if (navigator.vibrate) navigator.vibrate(8);
+  };
+
+  const handleCycleSlotSound = (slotIndex: number, direction: -1 | 1) => {
+    onFirstInteraction?.();
+    setSlotSoundIndices((previous) => {
       const next = [...previous] as [number, number, number, number];
-      next[slotIndex] = (next[slotIndex] + 1) % NUM_RINGS;
+      next[slotIndex] = (next[slotIndex] + direction + SOLO_SOUND_COUNT) % SOLO_SOUND_COUNT;
       return next;
     });
     if (navigator.vibrate) navigator.vibrate(8);
@@ -237,7 +265,7 @@ export function RadialSequencer({
 
   const updateFaderFromPointer = (e: React.PointerEvent<SVGGElement>, slotIndex: number) => {
     const node = SOUND_SLOTS[slotIndex].slider;
-    const ring = slotVoices[slotIndex];
+    const ring = slotIndex;
     const point = getSvgPoint(e);
     const dx = point.x - node.x;
     const dy = point.y - node.y;
@@ -268,7 +296,7 @@ export function RadialSequencer({
     if (!faceplate) return;
 
     SOUND_SLOTS.forEach((slot, slotIndex) => {
-      const ring = slotVoices[slotIndex];
+      const ring = slotIndex;
       const color = RING_COLORS[ring];
       const sliderValue = faders[ring];
       const offset = (sliderValue - 0.5) * FADER_RANGE;
@@ -293,7 +321,7 @@ export function RadialSequencer({
         thumb.setAttribute('fill', color);
       }
     });
-  }, [faders, slotVoices]);
+  }, [faders]);
 
   useEffect(() => {
     const faceplate = faceplateRef.current;
@@ -358,13 +386,36 @@ export function RadialSequencer({
         {SOUND_SLOTS.map((slot, slotIndex) => {
           return (
             <g
-              key={`sound-cycle-${slotIndex}`}
-              data-testid={`sound-cycle-${slotIndex}`}
-              onPointerDown={() => handleCycleSound(slotIndex)}
+              key={`solo-button-${slotIndex}`}
+              data-testid={`solo-button-${slotIndex}`}
+              onPointerDown={() => handleSoloButtonPress(slotIndex)}
               style={{ cursor: 'pointer' }}
             >
               <circle cx={slot.button.x} cy={slot.button.y} r="24" fill="transparent" />
             </g>
+          );
+        })}
+
+        {SOUND_SLOTS.map((slot, slotIndex) => {
+          const arrows = getSlotArrowPoints(slot);
+
+          return (
+            <React.Fragment key={`solo-arrows-${slotIndex}`}>
+              <g
+                data-testid={`solo-arrow-back-${slotIndex}`}
+                onPointerDown={() => handleCycleSlotSound(slotIndex, -1)}
+                style={{ cursor: 'pointer' }}
+              >
+                <circle cx={arrows.backward.x} cy={arrows.backward.y} r={SLOT_ARROW_RADIUS} fill="transparent" />
+              </g>
+              <g
+                data-testid={`solo-arrow-forward-${slotIndex}`}
+                onPointerDown={() => handleCycleSlotSound(slotIndex, 1)}
+                style={{ cursor: 'pointer' }}
+              >
+                <circle cx={arrows.forward.x} cy={arrows.forward.y} r={SLOT_ARROW_RADIUS} fill="transparent" />
+              </g>
+            </React.Fragment>
           );
         })}
 
