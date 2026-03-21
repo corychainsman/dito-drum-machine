@@ -36,7 +36,7 @@ export const SOLO_SOUND_COUNT = 5;
 
 // ─── Audio ────────────────────────────────────────────────────────
 export const SCHEDULER_LOOKAHEAD_MS = 25;
-export const SCHEDULER_AHEAD_S = 0.1;
+export const SCHEDULER_AHEAD_S = 0.2; // 200ms — gives room if iOS throttles setTimeout beyond 100ms
 export const DEFAULT_BPM = 100;
 export const MIN_BPM = 25;
 export const MAX_BPM = 220;

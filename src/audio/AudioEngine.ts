@@ -27,11 +27,11 @@ function normalizeIndex(value: number, size: number): number {
 
 export class AudioEngine {
   private ctx: AudioContext | null = null;
-  private initPromise: Promise<void> | null = null;
   private schedulerTimer: number | null = null;
   private nextStepTime: number = 0;
   private currentStep: number = 0;
   private isPlaying: boolean = false;
+  private keepAliveNode: OscillatorNode | null = null;
 
   // Exposed for useAnimationFrame
   loopStartTime: number = 0;
@@ -43,17 +43,46 @@ export class AudioEngine {
    * Returns the same in-flight promise if called while init is running,
    * preventing the race where start() fires before ctx.resume() resolves.
    */
-  init(): Promise<void> {
-    if (this.initPromise) return this.initPromise;
-    this.initPromise = this._doInit();
-    return this.initPromise;
+  init(): void {
+    if (this.ctx) return;
+    this._doInit();
   }
 
-  private async _doInit(): Promise<void> {
-    this.ctx = new AudioContext({ latencyHint: 'interactive' });
-    if (this.ctx.state === 'suspended') {
-      await this.ctx.resume();
-    }
+  private _doInit(): void {
+    this.ctx = new AudioContext({ latencyHint: 'interactive', sampleRate: 44100 });
+
+    // iOS Safari requires a sound to be scheduled synchronously within the
+    // gesture handler to fully unlock the AudioContext. A silent 1-frame buffer
+    // does the job without making a sound.
+    const silentBuf = this.ctx.createBuffer(1, 1, 22050);
+    const silentSrc = this.ctx.createBufferSource();
+    silentSrc.buffer = silentBuf;
+    silentSrc.connect(this.ctx.destination);
+    silentSrc.start(0);
+
+    // iOS auto-suspends AudioContexts it considers idle. A silent oscillator
+    // running through a zero-gain node keeps the context active so the
+    // scheduler's ctx.currentTime advances continuously without needing a
+    // user gesture to resume.
+    const keepAliveGain = this.ctx.createGain();
+    keepAliveGain.gain.value = 0;
+    this.keepAliveNode = this.ctx.createOscillator();
+    this.keepAliveNode.connect(keepAliveGain);
+    keepAliveGain.connect(this.ctx.destination);
+    this.keepAliveNode.start();
+
+    // Fire-and-forget: do NOT await ctx.resume(). On iOS Safari the promise can
+    // stall indefinitely, which would block engine.start() from ever being
+    // called. The statechange listener below handles recovery instead.
+    this.ctx.resume();
+
+    // Auto-recover from any future suspension or iOS-specific 'interrupted' state.
+    this.ctx.addEventListener('statechange', () => {
+      if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === ('interrupted' as AudioContextState))) {
+        this.ctx.resume();
+      }
+    });
+
     this.setupVisibilityHandling();
   }
 
@@ -61,10 +90,26 @@ export class AudioEngine {
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         this.ctx?.suspend();
-      } else {
-        this.ctx?.resume();
+      } else if (this.ctx && this.ctx.state !== 'running') {
+        // On iOS, visibilitychange is not a user gesture so ctx.resume() may
+        // silently fail. Defer to the next user touch instead.
+        const onTouch = () => {
+          if (this.ctx?.state !== 'running') this.ctx?.resume();
+        };
+        document.addEventListener('pointerdown', onTouch, { once: true, passive: true });
+        document.addEventListener('touchstart', onTouch, { once: true, passive: true });
       }
     });
+
+    // iOS Safari can re-suspend the AudioContext on any touch. Resume it on
+    // every user gesture so playback recovers without requiring a stop/start.
+    const resumeOnGesture = () => {
+      if (this.ctx?.state === 'suspended') {
+        this.ctx.resume();
+      }
+    };
+    document.addEventListener('touchstart', resumeOnGesture, { passive: true });
+    document.addEventListener('pointerdown', resumeOnGesture, { passive: true });
   }
 
   start(
@@ -158,6 +203,20 @@ export class AudioEngine {
   ): void {
     const schedule = () => {
       if (!this.ctx || !this.isPlaying) return;
+
+      // Mobile Safari aggressively re-suspends AudioContext after the initial
+      // resume. When suspended or interrupted (iOS-specific state), currentTime
+      // freezes and the while loop below never fires, sticking the sequencer on
+      // the first step with no audio. Calling resume() on every tick recovers it.
+      if (this.ctx.state === 'suspended' || this.ctx.state === ('interrupted' as AudioContextState)) {
+        this.ctx.resume();
+      }
+
+      // If nextStepTime has fallen behind currentTime (e.g. after a long
+      // suspension), reset it so we don't schedule a burst of past events.
+      if (this.nextStepTime < this.ctx.currentTime) {
+        this.nextStepTime = this.ctx.currentTime + 0.05;
+      }
 
       const bpm = getBpm();
       const secondsPerStep = 60.0 / bpm / 2; // 8th-note grid

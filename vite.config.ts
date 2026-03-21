@@ -4,6 +4,13 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 export default defineConfig({
+  server: {
+    host: true,
+    https: {
+      cert: './department-of-mysteries.taile1b538.ts.net.crt',
+      key: './department-of-mysteries.taile1b538.ts.net.key'
+    }
+  },
   // GitHub Pages: use relative paths so it works at any subpath
   // e.g. https://username.github.io/orbit/
   base: './',

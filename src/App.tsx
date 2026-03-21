@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useCallback, useState } from 'react';
+import { useReducer, useEffect, useCallback, useState, useRef } from 'react';
 import { LayoutParams } from './types';
 import { reducer, getInitialState } from './state/reducer';
 import { stateToURL, getInitialLayout } from './state/urlCodec';
@@ -11,19 +11,36 @@ export function App() {
   const [layout] = useState<LayoutParams>(() => getInitialLayout());
 
   // Sync all state (including layout) to URL
+  // Always keep a ref to the latest state+layout so the URL sync handlers
+  // below can read current values without stale closures.
+  const urlSyncRef = useRef({ state, layout });
+  urlSyncRef.current = { state, layout };
+
   useEffect(() => {
-    const url = stateToURL(state, layout);
-    window.history.replaceState(null, '', url);
-  }, [state.pattern, state.faders, state.bpm, layout]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Only write the URL when the user finishes a gesture or releases a key —
+    // not on every intermediate drag event. This avoids hitting the browser
+    // rate limit on history.replaceState (~100 calls/30s in Safari), which
+    // throws a SecurityError in a useEffect and unmounts the React tree.
+    const sync = () => {
+      const { state, layout } = urlSyncRef.current;
+      window.history.replaceState(null, '', stateToURL(state, layout));
+    };
+    document.addEventListener('pointerup', sync);
+    document.addEventListener('keyup', sync);
+    return () => {
+      document.removeEventListener('pointerup', sync);
+      document.removeEventListener('keyup', sync);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { init, getEngine } = useAudioEngine(state, dispatch);
 
-  const handleFirstInteraction = useCallback(async () => {
-    await init();
+  const handleFirstInteraction = useCallback(() => {
+    init();
   }, [init]);
 
-  const handleSoloTrigger = useCallback(async (slotIndex: number, soundIndex: number, fader: number) => {
-    await init();
+  const handleSoloTrigger = useCallback((slotIndex: number, soundIndex: number, fader: number) => {
+    init();
     getEngine().triggerSoloSlotSound(slotIndex, soundIndex, fader);
   }, [getEngine, init]);
 

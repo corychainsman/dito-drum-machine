@@ -141,16 +141,17 @@ function projectToTempoAxis(point: Point) {
   return (dx - dy) / Math.SQRT2;
 }
 
-function getSvgPoint<T extends SVGElement>(e: React.PointerEvent<T>): Point {
+function getSvgPoint<T extends SVGElement>(e: React.PointerEvent<T>): Point | null {
   const svg = (e.currentTarget.ownerSVGElement ?? e.currentTarget) as SVGSVGElement;
   const ctm = svg.getScreenCTM();
-
-  if (!ctm) {
-    return { x: SVG_HALF, y: SVG_HALF };
+  if (!ctm) return null;
+  try {
+    const point = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    if (!isFinite(point.x) || !isFinite(point.y)) return null;
+    return { x: point.x, y: point.y };
+  } catch {
+    return null;
   }
-
-  const point = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
-  return { x: point.x, y: point.y };
 }
 
 export function RadialSequencer({
@@ -201,6 +202,7 @@ export function RadialSequencer({
     onFirstInteraction?.();
     e.currentTarget.setPointerCapture(e.pointerId);
     const point = getSvgPoint(e);
+    if (!point) return;
     tempoDragRef.current = {
       pointerId: e.pointerId,
       startAxisProjection: projectToTempoAxis(point),
@@ -213,6 +215,7 @@ export function RadialSequencer({
     if (!drag || drag.pointerId !== e.pointerId || !e.currentTarget.hasPointerCapture(e.pointerId)) return;
 
     const point = getSvgPoint(e);
+    if (!point) return;
     const axisDelta = projectToTempoAxis(point) - drag.startAxisProjection;
     const nextAngle = clamp(
       drag.startAngleDeg + axisDelta * TEMPO_DRAG_DEGREES_PER_UNIT,
@@ -277,10 +280,11 @@ export function RadialSequencer({
     void onSoloTrigger?.(slotIndex, soundIndex, fader);
   };
 
-  const updateFaderFromPointer = (e: React.PointerEvent<SVGGElement>, slotIndex: number): number => {
+  const updateFaderFromPointer = (e: React.PointerEvent<SVGGElement>, slotIndex: number): number | null => {
     const node = SOUND_SLOTS[slotIndex].slider;
     const ring = slotIndex;
     const point = getSvgPoint(e);
+    if (!point) return null;
     const dx = point.x - node.x;
     const dy = point.y - node.y;
     const projected = dx * node.axisX + dy * node.axisY;
@@ -293,13 +297,13 @@ export function RadialSequencer({
     onFirstInteraction?.();
     e.currentTarget.setPointerCapture(e.pointerId);
     const normalized = updateFaderFromPointer(e, slotIndex);
-    previewLeadPitchIfNeeded(slotIndex, normalized);
+    if (normalized !== null) previewLeadPitchIfNeeded(slotIndex, normalized);
   };
 
   const handleFaderMove = (e: React.PointerEvent<SVGGElement>, slotIndex: number) => {
     if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
     const normalized = updateFaderFromPointer(e, slotIndex);
-    previewLeadPitchIfNeeded(slotIndex, normalized);
+    if (normalized !== null) previewLeadPitchIfNeeded(slotIndex, normalized);
   };
 
   const handleFaderUp = (e: React.PointerEvent<SVGGElement>) => {
