@@ -13,6 +13,16 @@ type SoloCategory = 'cymbal' | 'kick' | 'snare' | 'lead';
 // iOS Safari defines a non-standard 'interrupted' AudioContextState not in the W3C spec.
 const IOS_INTERRUPTED = 'interrupted' as AudioContextState;
 
+/**
+ * Resume the AudioContext if it is suspended or in the iOS-specific
+ * 'interrupted' state. Safe to call unconditionally — no-ops when running.
+ */
+function resumeIfNeeded(ctx: AudioContext): void {
+  if (ctx.state === 'suspended' || ctx.state === IOS_INTERRUPTED) {
+    ctx.resume();
+  }
+}
+
 const SOLO_SLOT_CATEGORIES: SoloCategory[] = ['cymbal', 'kick', 'snare', 'lead'];
 const SOLO_VARIANT_FADERS = {
   kick: [0.1, 0.3, 0.5, 0.7, 0.9] as const,
@@ -81,9 +91,7 @@ export class AudioEngine {
 
     // Auto-recover from any future suspension or iOS-specific 'interrupted' state.
     this.ctx.addEventListener('statechange', () => {
-      if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === IOS_INTERRUPTED)) {
-        this.ctx.resume();
-      }
+      if (this.ctx) resumeIfNeeded(this.ctx);
     });
 
     this.setupVisibilityHandling();
@@ -97,7 +105,7 @@ export class AudioEngine {
         // On iOS, visibilitychange is not a user gesture so ctx.resume() may
         // silently fail. Defer to the next user touch instead.
         const onTouch = () => {
-          if (this.ctx?.state !== 'running') this.ctx?.resume();
+          if (this.ctx) resumeIfNeeded(this.ctx);
         };
         document.addEventListener('pointerdown', onTouch, { once: true, passive: true });
         document.addEventListener('touchstart', onTouch, { once: true, passive: true });
@@ -107,9 +115,7 @@ export class AudioEngine {
     // iOS Safari can re-suspend the AudioContext on any touch. Resume it on
     // every user gesture so playback recovers without requiring a stop/start.
     const resumeOnGesture = () => {
-      if (this.ctx?.state === 'suspended') {
-        this.ctx.resume();
-      }
+      if (this.ctx) resumeIfNeeded(this.ctx);
     };
     document.addEventListener('touchstart', resumeOnGesture, { passive: true });
     document.addEventListener('pointerdown', resumeOnGesture, { passive: true });
@@ -211,9 +217,7 @@ export class AudioEngine {
       // resume. When suspended or interrupted (iOS-specific state), currentTime
       // freezes and the while loop below never fires, sticking the sequencer on
       // the first step with no audio. Calling resume() on every tick recovers it.
-      if (this.ctx.state === 'suspended' || this.ctx.state === IOS_INTERRUPTED) {
-        this.ctx.resume();
-      }
+      resumeIfNeeded(this.ctx);
 
       // If nextStepTime has fallen behind currentTime (e.g. after a long
       // suspension), reset it so we don't schedule a burst of past events.
