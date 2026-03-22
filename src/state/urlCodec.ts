@@ -76,6 +76,7 @@ export function stateToURL(state: AppState, layout: LayoutParams): string {
     .map(v => Math.round(v * 15).toString(16))
     .join('');
 
+  // Hex encoding gives headroom for up to 15 variants per step without a format change.
   const s = state.stepSounds
     .map(row => row.map(v => v.toString(16)).join(''))
     .join('');
@@ -126,14 +127,17 @@ export function urlToState(search: string): Partial<AppState> | null {
   ) as Faders;
 
   // Parse stepSounds (optional — absent means all-zero defaults)
+  // Validate as generic hex chars; clamp decoded values to [0, SOLO_SOUND_COUNT-1]
+  // so the codec stays correct even if SOLO_SOUND_COUNT changes.
   const sParam = params.get('s');
   let stepSounds: StepSounds | undefined;
-  if (sParam && new RegExp(`^[0-${SOLO_SOUND_COUNT - 1}]{${NUM_RINGS * NUM_STEPS}}$`).test(sParam)) {
+  if (sParam && new RegExp(`^[0-9a-fA-F]{${NUM_RINGS * NUM_STEPS}}$`).test(sParam)) {
     const soundRows: StepSoundRow[] = [];
     for (let r = 0; r < NUM_RINGS; r++) {
-      const row = Array.from({ length: NUM_STEPS }, (_, i) =>
-        parseInt(sParam[r * NUM_STEPS + i], 16)
-      ) as StepSoundRow;
+      const row = Array.from({ length: NUM_STEPS }, (_, i) => {
+        const v = parseInt(sParam[r * NUM_STEPS + i], 16);
+        return Math.min(v, SOLO_SOUND_COUNT - 1);
+      }) as StepSoundRow;
       soundRows.push(row);
     }
     stepSounds = soundRows as StepSounds;

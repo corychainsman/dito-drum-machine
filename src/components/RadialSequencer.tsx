@@ -486,9 +486,7 @@ export function RadialSequencer({
             fontWeight="700"
             fill="#101010"
           >
-            <tspan dy="0" dx="16" textAnchor="end">
-            {formatTempo(bpm)}
-            </tspan>
+            <tspan dy="0" dx="16" textAnchor="end">{formatTempo(bpm)}</tspan>
             <tspan dx="-18" dy="1em" textAnchor="end">bpm</tspan>
           </text>
         </g>
