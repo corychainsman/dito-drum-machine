@@ -46,6 +46,7 @@ export class AudioEngine {
   private isPlaying: boolean = false;
   private keepAliveNode: OscillatorNode | null = null;
   private kickoffTimer: number | null = null;
+  private stepSchedule: Array<{ step: number; time: number }> = [];
 
   // Exposed for useAnimationFrame
   loopStartTime: number = 0;
@@ -121,7 +122,6 @@ export class AudioEngine {
     getStepSounds: () => StepSounds,
     getFaders: () => Faders,
     getRepeatActive: () => boolean,
-    onStepChange: (step: number) => void
   ): void {
     if (!this.ctx) return;
     this.isPlaying = true;
@@ -143,7 +143,7 @@ export class AudioEngine {
       const secondsPerStep = 60.0 / bpm / 2;
       this.loopDuration = secondsPerStep * NUM_STEPS;
       this.loopStartTime = this.nextStepTime;
-      this.schedulerLoop(getBpm, getPattern, getStepSounds, getFaders, getRepeatActive, onStepChange);
+      this.schedulerLoop(getBpm, getPattern, getStepSounds, getFaders, getRepeatActive);
     };
 
     kickoff();
@@ -159,6 +159,22 @@ export class AudioEngine {
       clearTimeout(this.schedulerTimer);
       this.schedulerTimer = null;
     }
+    this.stepSchedule = [];
+  }
+
+  /**
+   * Returns the step whose audio is playing right now (audio-clock accurate),
+   * or -1 when stopped. Used by requestAnimationFrame to sync the visual highlight
+   * to actual playback rather than to the look-ahead scheduler.
+   */
+  getDisplayStep(): number {
+    if (!this.ctx || !this.isPlaying || this.stepSchedule.length === 0) return -1;
+    const now = this.ctx.currentTime;
+    let result = -1;
+    for (const entry of this.stepSchedule) {
+      if (entry.time <= now) result = entry.step;
+    }
+    return result;
   }
 
   getCtx(): AudioContext | null {
@@ -218,7 +234,6 @@ export class AudioEngine {
     getStepSounds: () => StepSounds,
     getFaders: () => Faders,
     getRepeatActive: () => boolean,
-    onStepChange: (step: number) => void
   ): void {
     const schedule = () => {
       if (!this.ctx || !this.isPlaying) return;
@@ -254,6 +269,11 @@ export class AudioEngine {
       // Update loop duration whenever bpm changes
       this.loopDuration = secondsPerStep * NUM_STEPS;
 
+      // Trim schedule entries that are more than one step in the past
+      this.stepSchedule = this.stepSchedule.filter(
+        e => e.time >= this.ctx!.currentTime - secondsPerStep
+      );
+
       while (this.nextStepTime < this.ctx.currentTime + SCHEDULER_AHEAD_S) {
         // Schedule all armed voices at this step
         for (let ring = 0; ring < NUM_RINGS; ring++) {
@@ -262,7 +282,8 @@ export class AudioEngine {
           }
         }
 
-        onStepChange(this.currentStep);
+        // Record when this step plays so getDisplayStep() can sync the UI
+        this.stepSchedule.push({ step: this.currentStep, time: this.nextStepTime });
 
         if (repeatActive) {
           // Don't advance step — re-trigger at subdivided rate

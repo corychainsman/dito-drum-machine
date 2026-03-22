@@ -99,8 +99,8 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'SET_REPEAT':
       return { ...state, repeatActive: action.active };
 
-    case 'ADVANCE_STEP':
-      return { ...state, currentStep: (state.currentStep + 1) % NUM_STEPS };
+    case 'SET_CURRENT_STEP':
+      return { ...state, currentStep: action.step };
 
     case 'HYDRATE':
       return {
