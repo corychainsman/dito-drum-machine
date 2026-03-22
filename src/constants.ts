@@ -1,29 +1,14 @@
 import type { LayoutParams } from './types';
 
 // ─── Layout ───────────────────────────────────────────────────────
-export const SVG_SIZE = 400;
-export const SVG_CENTER = SVG_SIZE / 2; // 200
-
 export const NUM_RINGS = 4;
 export const NUM_STEPS = 8;
-export const STEP_ANGLE_DEG = 360 / NUM_STEPS; // 45
-export const PAD_SUBTEND_DEG = 38; // arc width of each pad in degrees
-export const PAD_GAP_DEG = STEP_ANGLE_DEG - PAD_SUBTEND_DEG; // 7
-export const START_ANGLE_DEG = -90; // 12 o'clock in SVG coordinates
 
-// Ring geometry: [innerRadius, outerRadius] from outermost to innermost
-export const RING_RADII: [number, number][] = [
-  [170, 190], // Ring 0: Kick (outermost)
-  [140, 158], // Ring 1: Snare
-  [110, 128], // Ring 2: Hi-hat
-  [80, 98],   // Ring 3: Clap
-];
+// Radii of each step-circle ring in the SVG faceplate (outermost to innermost),
+// derived from the positions in dito-v1.svg.
+export const STEP_BASE_RADII = [184, 139, 94, 49] as const;
 
 // ─── Colors ───────────────────────────────────────────────────────
-export const COLOR_BG = '#1A1A2E';
-export const COLOR_FIELD = '#16213E';
-export const COLOR_PAD_OFF = '#3A3A3A';
-
 export const RING_COLORS = [
   '#FF6B6B', // Kick: coral red
   '#FFD93D', // Snare: warm yellow

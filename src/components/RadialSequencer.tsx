@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import React from 'react';
 import { Pattern, Action, Transport, Faders, LayoutParams } from '../types';
-import { NUM_RINGS, NUM_STEPS, DEFAULT_LAYOUT, RING_COLORS } from '../constants';
+import { NUM_RINGS, NUM_STEPS, DEFAULT_LAYOUT, RING_COLORS, STEP_BASE_RADII } from '../constants';
 import { CenterControl } from './CenterControl';
 import { TempoDial } from './TempoDial';
 import { SoloControls } from './SoloControls';
@@ -22,8 +22,6 @@ interface RadialSequencerProps {
 const SVG_SIZE = 425;
 const SVG_HALF = SVG_SIZE / 2;
 
-// Derived from dito-v1.svg step-circle ring distances (outermost to innermost)
-const STEP_BASE_RADII = [184, 139, 94, 49];
 const STEP_OFF_COLOR = '#D2DBE4';
 const STEP_START_IN_SVG = 247.5;
 

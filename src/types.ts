@@ -53,15 +53,4 @@ export interface Point {
   y: number;
 }
 
-// Geometry helper types
-export interface ArcDescriptor {
-  ring: number;
-  step: number;
-  innerRadius: number;
-  outerRadius: number;
-  startAngleDeg: number;
-  endAngleDeg: number;
-  path: string; // SVG path `d` attribute
-  centroidX: number;
-  centroidY: number;
-}
+
