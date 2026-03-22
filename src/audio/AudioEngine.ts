@@ -45,6 +45,7 @@ export class AudioEngine {
   private currentStep: number = 0;
   private isPlaying: boolean = false;
   private keepAliveNode: OscillatorNode | null = null;
+  private kickoffTimer: number | null = null;
 
   // Exposed for useAnimationFrame
   loopStartTime: number = 0;
@@ -98,21 +99,14 @@ export class AudioEngine {
   }
 
   private setupVisibilityHandling(): void {
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        this.ctx?.suspend();
-      } else if (this.ctx && this.ctx.state !== 'running') {
-        // On iOS, visibilitychange is not a user gesture so ctx.resume() may
-        // silently fail. Defer to the next user touch instead.
-        const onTouch = () => {
-          if (this.ctx) resumeIfNeeded(this.ctx);
-        };
-        document.addEventListener('pointerdown', onTouch, { once: true, passive: true });
-        document.addEventListener('touchstart', onTouch, { once: true, passive: true });
-      }
-    });
+    // Do NOT suspend the AudioContext when the page hides. The scheduler's
+    // document.hidden guard already stops new sounds from being scheduled.
+    // Suspending creates a resume-on-return problem: ctx.resume() requires a
+    // user gesture on iOS, so audio silently stays dead until the user taps.
+    // Keeping the context alive (via the keepAlive oscillator) means audio
+    // resumes immediately when the user returns without any gesture.
 
-    // iOS Safari can re-suspend the AudioContext on any touch. Resume it on
+    // iOS Safari can spontaneously re-suspend the AudioContext. Resume it on
     // every user gesture so playback recovers without requiring a stop/start.
     const resumeOnGesture = () => {
       if (this.ctx) resumeIfNeeded(this.ctx);
@@ -132,19 +126,35 @@ export class AudioEngine {
     if (!this.ctx) return;
     this.isPlaying = true;
     this.currentStep = 0;
-    this.nextStepTime = this.ctx.currentTime + 0.05;
 
-    // Store loop metadata for playhead animation
-    const bpm = getBpm();
-    const secondsPerStep = 60.0 / bpm / 2;
-    this.loopDuration = secondsPerStep * NUM_STEPS;
-    this.loopStartTime = this.nextStepTime;
+    const kickoff = () => {
+      if (!this.ctx || !this.isPlaying) return;
+      // iOS Safari does not reliably fire statechange, so poll until running.
+      if (this.ctx.state !== 'running') {
+        resumeIfNeeded(this.ctx);
+        this.kickoffTimer = window.setTimeout(kickoff, 50);
+        return;
+      }
+      this.kickoffTimer = null;
+      // Anchor nextStepTime to real currentTime so audio is scheduled
+      // relative to when the context is actually running, not a frozen value.
+      this.nextStepTime = this.ctx.currentTime + 0.05;
+      const bpm = getBpm();
+      const secondsPerStep = 60.0 / bpm / 2;
+      this.loopDuration = secondsPerStep * NUM_STEPS;
+      this.loopStartTime = this.nextStepTime;
+      this.schedulerLoop(getBpm, getPattern, getStepSounds, getFaders, getRepeatActive, onStepChange);
+    };
 
-    this.schedulerLoop(getBpm, getPattern, getStepSounds, getFaders, getRepeatActive, onStepChange);
+    kickoff();
   }
 
   stop(): void {
     this.isPlaying = false;
+    if (this.kickoffTimer !== null) {
+      clearTimeout(this.kickoffTimer);
+      this.kickoffTimer = null;
+    }
     if (this.schedulerTimer !== null) {
       clearTimeout(this.schedulerTimer);
       this.schedulerTimer = null;
@@ -212,6 +222,15 @@ export class AudioEngine {
   ): void {
     const schedule = () => {
       if (!this.ctx || !this.isPlaying) return;
+
+      // When the page is hidden (user switched apps), skip scheduling entirely.
+      // Only guarding resumeIfNeeded is not enough — if ctx.suspend() hasn't
+      // resolved yet, the while loop below would still commit audio to the
+      // Web Audio graph, producing a stray sound as the context suspends.
+      if (document.hidden) {
+        this.schedulerTimer = window.setTimeout(schedule, SCHEDULER_LOOKAHEAD_MS);
+        return;
+      }
 
       // Mobile Safari aggressively re-suspends AudioContext after the initial
       // resume. When suspended or interrupted (iOS-specific state), currentTime
