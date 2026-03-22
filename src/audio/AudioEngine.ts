@@ -10,6 +10,9 @@ import {
 
 type SoloCategory = 'cymbal' | 'kick' | 'snare' | 'lead';
 
+// iOS Safari defines a non-standard 'interrupted' AudioContextState not in the W3C spec.
+const IOS_INTERRUPTED = 'interrupted' as AudioContextState;
+
 const SOLO_SLOT_CATEGORIES: SoloCategory[] = ['cymbal', 'kick', 'snare', 'lead'];
 const SOLO_VARIANT_FADERS = {
   kick: [0.1, 0.3, 0.5, 0.7, 0.9] as const,
@@ -78,7 +81,7 @@ export class AudioEngine {
 
     // Auto-recover from any future suspension or iOS-specific 'interrupted' state.
     this.ctx.addEventListener('statechange', () => {
-      if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === ('interrupted' as AudioContextState))) {
+      if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === IOS_INTERRUPTED)) {
         this.ctx.resume();
       }
     });
@@ -208,7 +211,7 @@ export class AudioEngine {
       // resume. When suspended or interrupted (iOS-specific state), currentTime
       // freezes and the while loop below never fires, sticking the sequencer on
       // the first step with no audio. Calling resume() on every tick recovers it.
-      if (this.ctx.state === 'suspended' || this.ctx.state === ('interrupted' as AudioContextState)) {
+      if (this.ctx.state === 'suspended' || this.ctx.state === IOS_INTERRUPTED) {
         this.ctx.resume();
       }
 

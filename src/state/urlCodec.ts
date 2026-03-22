@@ -1,5 +1,5 @@
-import { AppState, LayoutParams, Pattern, PatternRow, Faders } from '../types';
-import { NUM_RINGS, NUM_STEPS, MIN_BPM, MAX_BPM, DEFAULT_LAYOUT, DEFAULT_LAYOUT_HEX } from '../constants';
+import { AppState, LayoutParams, Pattern, PatternRow, Faders, StepSounds, StepSoundRow } from '../types';
+import { NUM_RINGS, NUM_STEPS, MIN_BPM, MAX_BPM, DEFAULT_LAYOUT, DEFAULT_LAYOUT_HEX, SOLO_SOUND_COUNT } from '../constants';
 
 // ─── Layout encoding helpers ──────────────────────────────────────
 // Angles (0-360°) encoded as one byte (0x00-0xFF)
@@ -76,10 +76,17 @@ export function stateToURL(state: AppState, layout: LayoutParams): string {
     .map(v => Math.round(v * 15).toString(16))
     .join('');
 
+  const s = state.stepSounds
+    .map(row => row.map(v => v.toString(16)).join(''))
+    .join('');
+  const isDefaultStepSounds = s === '0'.repeat(NUM_RINGS * NUM_STEPS);
+
   const lHex = layoutToHex(layout);
   const isDefaultLayout = lHex.toLowerCase() === DEFAULT_LAYOUT_HEX.toLowerCase();
 
-  return `?p=${p}&f=${f}&t=${state.bpm}` + (isDefaultLayout ? '' : `&l=${lHex}`);
+  return `?p=${p}&f=${f}&t=${state.bpm}` +
+    (isDefaultStepSounds ? '' : `&s=${s}`) +
+    (isDefaultLayout ? '' : `&l=${lHex}`);
 }
 
 export function urlToState(search: string): Partial<AppState> | null {
@@ -103,19 +110,34 @@ export function urlToState(search: string): Partial<AppState> | null {
   if (isNaN(bpm) || bpm < MIN_BPM || bpm > MAX_BPM) return null;
 
   // Parse pattern
-  const pattern: Pattern = [] as unknown as Pattern;
+  const patternRows: PatternRow[] = [];
   for (let r = 0; r < NUM_RINGS; r++) {
     const byte = parseInt(p.substring(r * 2, r * 2 + 2), 16);
     const row = Array.from({ length: NUM_STEPS }, (_, i) =>
       Boolean(byte & (1 << i))
     ) as PatternRow;
-    (pattern as PatternRow[]).push(row);
+    patternRows.push(row);
   }
+  const pattern = patternRows as Pattern;
 
   // Parse faders
   const faders = Array.from({ length: NUM_RINGS }, (_, i) =>
     parseInt(f[i], 16) / 15
   ) as Faders;
 
-  return { pattern, faders, bpm };
+  // Parse stepSounds (optional — absent means all-zero defaults)
+  const sParam = params.get('s');
+  let stepSounds: StepSounds | undefined;
+  if (sParam && new RegExp(`^[0-${SOLO_SOUND_COUNT - 1}]{${NUM_RINGS * NUM_STEPS}}$`).test(sParam)) {
+    const soundRows: StepSoundRow[] = [];
+    for (let r = 0; r < NUM_RINGS; r++) {
+      const row = Array.from({ length: NUM_STEPS }, (_, i) =>
+        parseInt(sParam[r * NUM_STEPS + i], 16)
+      ) as StepSoundRow;
+      soundRows.push(row);
+    }
+    stepSounds = soundRows as StepSounds;
+  }
+
+  return { pattern, faders, bpm, ...(stepSounds && { stepSounds }) };
 }

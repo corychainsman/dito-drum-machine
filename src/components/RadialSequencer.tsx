@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Pattern, Action, Transport, Faders, LayoutParams } from '../types';
-import { NUM_RINGS, NUM_STEPS, MIN_BPM, MAX_BPM, DEFAULT_LAYOUT, RING_COLORS } from '../constants';
+import { NUM_RINGS, NUM_STEPS, MIN_BPM, MAX_BPM, DEFAULT_LAYOUT, RING_COLORS, SOLO_SOUND_COUNT } from '../constants';
 import { mapLeadSemitoneOffset } from '../audio/voices';
 import { CenterControl } from './CenterControl';
 import ditoFaceplateRaw from '../assets/dito-v1.svg?raw';
@@ -50,7 +50,6 @@ const STEP_START_IN_SVG = 247.5;
 const FADER_RANGE = 30;
 const SLOT_ARROW_OFFSET = 32;
 const SLOT_ARROW_RADIUS = 10;
-const SOLO_SOUND_COUNT = 5;
 const LEAD_SLOT_INDEX = 3;
 const SOUND_SLOTS: SoundSlot[] = [
   {
@@ -487,7 +486,7 @@ export function RadialSequencer({
             fontWeight="700"
             fill="#101010"
           >
-            <tspan dy="0"dx="16"textAnchor="end">
+            <tspan dy="0" dx="16" textAnchor="end">
             {formatTempo(bpm)}
             </tspan>
             <tspan dx="-18" dy="1em" textAnchor="end">bpm</tspan>

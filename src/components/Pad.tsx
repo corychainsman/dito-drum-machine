@@ -1,3 +1,4 @@
+import React from 'react';
 import { ArcDescriptor } from '../types';
 import { COLOR_PAD_OFF, RING_COLORS } from '../constants';
 
@@ -24,10 +25,10 @@ export function Pad({ arc, armed, triggering }: PadProps) {
       strokeWidth={armed ? 0 : 0.5}
       strokeOpacity={0.2}
       style={{
-        ['--cx' as string]: `${arc.centroidX}px`,
-        ['--cy' as string]: `${arc.centroidY}px`,
+        '--cx': `${arc.centroidX}px`,
+        '--cy': `${arc.centroidY}px`,
         cursor: 'pointer',
-      }}
+      } as React.CSSProperties}
       role="switch"
       aria-checked={armed}
       aria-label={`ring ${arc.ring}, step ${arc.step + 1}, ${armed ? 'on' : 'off'}`}

@@ -31,6 +31,7 @@ export function App() {
       document.removeEventListener('pointerup', sync);
       document.removeEventListener('keyup', sync);
     };
+  // urlSyncRef is a ref — its identity never changes, so it correctly belongs outside deps.
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { init, getEngine } = useAudioEngine(state, dispatch);
