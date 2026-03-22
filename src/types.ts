@@ -48,6 +48,11 @@ export interface LayoutParams {
   buttonsRadius: number; // 0-100, percent of SVG half-size
 }
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
 // Geometry helper types
 export interface ArcDescriptor {
   ring: number;
