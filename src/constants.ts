@@ -102,5 +102,5 @@ export const BP_DESKTOP = 1024;
 
 // ─── Haptics (vibration durations in ms) ──────────────────────────
 export const HAPTIC_PAD_TAP = 10;
-export const HAPTIC_RANDOM = [30, 20, 30, 20, 30];
-export const HAPTIC_REPEAT = 10;
+export const HAPTIC_SOLO = 8;
+export const HAPTIC_RANDOM = [30, 20, 30];

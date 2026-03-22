@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import React from 'react';
 import { Pattern, Action, Transport, Faders, LayoutParams } from '../types';
-import { NUM_RINGS, NUM_STEPS, DEFAULT_LAYOUT, RING_COLORS, STEP_BASE_RADII } from '../constants';
+import { NUM_RINGS, NUM_STEPS, DEFAULT_LAYOUT, RING_COLORS, STEP_BASE_RADII, HAPTIC_PAD_TAP, HAPTIC_RANDOM } from '../constants';
+import { haptic } from '../utils/haptic';
 import { CenterControl } from './CenterControl';
 import { TempoDial } from './TempoDial';
 import { SoloControls } from './SoloControls';
@@ -91,13 +92,13 @@ export function RadialSequencer({
     if (Number.isNaN(ring) || Number.isNaN(step)) return;
     onFirstInteraction?.();
     dispatch({ type: 'TOGGLE_PAD', ring, step });
-    if (navigator.vibrate) navigator.vibrate(10);
+    haptic(HAPTIC_PAD_TAP);
   };
 
   const handleRandomize = () => {
     onFirstInteraction?.();
     dispatch({ type: 'RANDOMIZE' });
-    if (navigator.vibrate) navigator.vibrate([30, 20, 30]);
+    haptic(HAPTIC_RANDOM);
   };
 
   const handleRepeatDown = (e: React.PointerEvent<SVGGElement>) => {

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Action, Faders, Point } from '../types';
-import { RING_COLORS, SOLO_SOUND_COUNT } from '../constants';
+import { RING_COLORS, SOLO_SOUND_COUNT, HAPTIC_SOLO } from '../constants';
+import { haptic } from '../utils/haptic';
 import { mapLeadSemitoneOffset } from '../audio/voices';
 import { clamp, getSvgPoint } from '../utils/svgUtils';
 
@@ -144,7 +145,7 @@ export function SoloControls({ faders, dispatch, faceplateRef, onFirstInteractio
   const handleSoloButtonPress = (slotIndex: number) => {
     onFirstInteraction?.();
     void onSoloTrigger?.(slotIndex, slotSoundIndices[slotIndex], faders[slotIndex]);
-    if (navigator.vibrate) navigator.vibrate(8);
+    haptic(HAPTIC_SOLO);
   };
 
   const handleCycleSlotSound = (slotIndex: number, direction: -1 | 1) => {
@@ -154,7 +155,7 @@ export function SoloControls({ faders, dispatch, faceplateRef, onFirstInteractio
       next[slotIndex] = (next[slotIndex] + direction + SOLO_SOUND_COUNT) % SOLO_SOUND_COUNT;
       return next;
     });
-    if (navigator.vibrate) navigator.vibrate(8);
+    haptic(HAPTIC_SOLO);
   };
 
   return (
