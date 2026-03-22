@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { stateToURL, urlToState } from '../state/urlCodec';
-import { getInitialState } from '../state/reducer';
+import { getInitialState, createDefaultStepSounds } from '../state/reducer';
 import { AppState, Pattern, Faders } from '../types';
 import { DEFAULT_LAYOUT } from '../constants';
 
@@ -20,7 +20,7 @@ describe('URL Codec round-trip', () => {
 
   it('round-trips all-on pattern', () => {
     const allOn: Pattern = Array(4).fill(Array(8).fill(true)) as Pattern;
-    const state = { pattern: allOn, faders: [1,1,1,1] as Faders, bpm: 220 } as AppState;
+    const state = { pattern: allOn, faders: [1,1,1,1] as Faders, bpm: 220, stepSounds: createDefaultStepSounds() } as AppState;
     const url = stateToURL(state, DEFAULT_LAYOUT);
     expect(url).toBe('?p=ffffffff&f=ffff&t=220');
     const parsed = urlToState(url);
@@ -29,7 +29,7 @@ describe('URL Codec round-trip', () => {
 
   it('round-trips all-off pattern', () => {
     const allOff: Pattern = Array(4).fill(Array(8).fill(false)) as Pattern;
-    const state = { pattern: allOff, faders: [0,0,0,0] as Faders, bpm: 25 } as AppState;
+    const state = { pattern: allOff, faders: [0,0,0,0] as Faders, bpm: 25, stepSounds: createDefaultStepSounds() } as AppState;
     const url = stateToURL(state, DEFAULT_LAYOUT);
     expect(url).toBe('?p=00000000&f=0000&t=25');
   });
